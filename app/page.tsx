@@ -1,6 +1,5 @@
 import Footer from "./components/Footer";
 import PartnerCTA from "./components/PartnerCTA";
-import Innovation from "./components/Innovation";
 import AuditionQ from "./components/AuditionQ";
 import Ecosystem from "./components/Ecosystem";
 import Vision from "./components/Vision";
@@ -16,7 +15,6 @@ export default function Home() {
       <Vision />
       <Ecosystem />
       <AuditionQ />
-      <Innovation />
       <PartnerCTA />
       <Footer />
     </main>
