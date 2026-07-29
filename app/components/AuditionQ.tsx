@@ -31,9 +31,15 @@ export default function AuditionQ() {
           modern, AI-powered digital experience.
         </p>
 
-        <button className="mt-8 bg-white text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition duration-300">
-          Explore Platform
-        </button>
+       <a
+  href="https://www.auditionq.com/"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <button className="mt-8 bg-white text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition duration-300">
+    Explore Platform
+  </button>
+</a>
       </motion.div>
     </section>
   );
