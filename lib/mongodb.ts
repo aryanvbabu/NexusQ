@@ -12,12 +12,16 @@ if (!cached) {
 }
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn;
+  if (cached.conn) {
+    if (cached.conn.connection.readyState === 1) return cached.conn;
+    cached.conn = null;
+    cached.promise = null;
+  }
 
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
-        serverSelectionTimeoutMS: 10000,
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
       })
       .then((m) => m)
@@ -26,6 +30,7 @@ export async function connectDB() {
         throw err;
       });
   }
+
   cached.conn = await cached.promise;
   return cached.conn;
 }
