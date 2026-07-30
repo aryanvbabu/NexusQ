@@ -9,25 +9,37 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/60 border-b border-zinc-800">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Image src="/logo.png" alt="NexusQ Logo" width={180} height={60} style={{ width: "auto", height: "auto" }} priority />
+      <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+        <Link
+          href="/"
+          className="block overflow-hidden rounded-xl shrink-0 ring-1 ring-white/10"
+        >
+          <Image
+            src="/logo.png"
+            alt="NexusQ Logo"
+            width={72}
+            height={72}
+            className="h-[72px] w-[72px] object-cover"
+            priority
+          />
+        </Link>
 
-        <ul className="flex gap-8">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#platforms">Platforms</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
+        <ul className="flex gap-7 text-sm text-zinc-300">
+          <li><a href="#home" className="hover:text-white transition">Home</a></li>
+          <li><a href="#platforms" className="hover:text-white transition">Platforms</a></li>
+          <li><a href="#about" className="hover:text-white transition">About</a></li>
+          <li><a href="#contact" className="hover:text-white transition">Contact</a></li>
         </ul>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {session ? (
             <>
-              <span className="text-zinc-300 text-sm">
+              <span className="text-zinc-400 text-sm">
                 {session.user?.name}
               </span>
               <button
                 onClick={() => signOut()}
-                className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-700 transition"
+                className="bg-zinc-800 text-white px-3.5 py-2 rounded-lg text-sm font-medium hover:bg-zinc-700 transition"
               >
                 Sign Out
               </button>
@@ -35,7 +47,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-zinc-200 transition"
+              className="bg-white text-black px-3.5 py-2 rounded-lg text-sm font-medium hover:bg-zinc-200 transition"
             >
               Sign In
             </Link>
