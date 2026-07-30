@@ -4,6 +4,14 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 
+// On Vercel, never use a localhost NEXTAUTH_URL
+if (process.env.VERCEL_URL) {
+  const current = process.env.NEXTAUTH_URL || "";
+  if (!current || current.includes("localhost")) {
+    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+  }
+}
+
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
