@@ -26,7 +26,7 @@ Variable names only — put real values in `.env.local` (gitignored):
 | `NEXTAUTH_URL` | App URL (e.g. `http://localhost:3000`) |
 | `RESEND_API_KEY` | Resend API key for partner form email (server-side only) |
 | `RESEND_FROM_EMAIL` | Verified Resend from address |
-| `PARTNER_INQUIRY_TO` | Destination inbox (default `admin@auditionq.com`) |
+| `PARTNER_INQUIRY_TO` | Destination inbox. Use `admin@auditionq.com` after verifying a Resend domain. In Resend test mode, only your Resend account email can receive mail. |
 
 ## Development
 

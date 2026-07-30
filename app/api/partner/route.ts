@@ -71,8 +71,20 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error("Resend error:", error);
+      const message =
+        typeof error === "object" && error && "message" in error
+          ? String((error as { message?: string }).message)
+          : "";
+      const sandboxBlocked =
+        message.includes("only send testing emails") ||
+        message.includes("verify a domain");
+
       return NextResponse.json(
-        { error: "Could not send your inquiry. Please try again." },
+        {
+          error: sandboxBlocked
+            ? "Email provider is in test mode. Verify a Resend domain to deliver to admin@auditionq.com, or set PARTNER_INQUIRY_TO to your Resend account email for testing."
+            : "Could not send your inquiry. Please try again.",
+        },
         { status: 502 }
       );
     }
