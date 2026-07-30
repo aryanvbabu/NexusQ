@@ -1,81 +1,165 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Video, Users, ClipboardCheck } from "lucide-react";
+import { Clapperboard, PawPrint, Car, HeartPulse, Shirt, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+
+type Status = "live" | "vision" | "exploration";
+
+const platforms: {
+  name: string;
+  status: Status;
+  description: string;
+  icon: typeof Clapperboard;
+  href?: string;
+}[] = [
+  {
+    name: "AuditionQ",
+    status: "live",
+    description:
+      "Our flagship live product — a modern digital platform connecting talent with opportunities through an AI-powered audition and interview experience.",
+    icon: Clapperboard,
+    href: "https://www.auditionq.com/",
+  },
+  {
+    name: "FurSure",
+    status: "vision",
+    description:
+      "A vision product in the NexusQ ecosystem. Details will be shared when the product moves beyond exploration.",
+    icon: PawPrint,
+  },
+  {
+    name: "RideQ",
+    status: "vision",
+    description:
+      "A vision product focused on future mobility experiences. Not launched — currently in early concept.",
+    icon: Car,
+  },
+  {
+    name: "CaringMinds",
+    status: "vision",
+    description:
+      "A vision product exploring digital tools for wellbeing and care. Presented here as direction, not a live service.",
+    icon: HeartPulse,
+  },
+  {
+    name: "Onakkodi",
+    status: "vision",
+    description:
+      "A vision product under the NexusQ umbrella. Status: concept / early development — not available yet.",
+    icon: Shirt,
+  },
+  {
+    name: "Future AI",
+    status: "exploration",
+    description:
+      "Ongoing exploration into AI capabilities and future platforms. Experimentation only — not a shipped product.",
+    icon: Sparkles,
+  },
+];
+
+const badgeClass: Record<Status, string> = {
+  live: "nq-badge nq-badge-live",
+  vision: "nq-badge nq-badge-vision",
+  exploration: "nq-badge nq-badge-explore",
+};
+
+const badgeLabel: Record<Status, string> = {
+  live: "Live",
+  vision: "Vision",
+  exploration: "Exploration",
+};
 
 export default function Ecosystem() {
+  const animate = useMotionSafe();
+
   return (
-    <section
-      id="platforms"
-      className="py-24 px-6 max-w-7xl mx-auto"
-    >
-      {/* Heading */}
-      <motion.h2
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-        className="text-5xl md:text-6xl font-extrabold text-center"
-      >
-        Our Ecosystem
-      </motion.h2>
+    <section id="platforms" className="nq-section bg-nq-surface/40">
+      <div className="nq-container">
+        <motion.div
+          initial={animate ? "hidden" : false}
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={animate ? stagger : undefined}
+          className="max-w-3xl mx-auto text-center"
+        >
+          <motion.p variants={fadeUp} className="nq-eyebrow">
+            Ecosystem
+          </motion.p>
+          <motion.h2 variants={fadeUp} className="nq-heading mt-4">
+            Platforms across live, vision, and exploration
+          </motion.h2>
+          <motion.p variants={fadeUp} className="nq-lede mx-auto">
+            Only AuditionQ is live today. Every other platform below is clearly
+            marked as vision or exploration — never presented as available.
+          </motion.p>
+        </motion.div>
 
-      {/* Description */}
-      <motion.p
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        viewport={{ once: true }}
-        className="text-zinc-400 text-center mt-6 max-w-3xl mx-auto text-lg leading-8"
-      >
-        A suite of AI-powered platforms designed to simplify hiring,
-        assessments, and talent management.
-      </motion.p>
+        <motion.div
+          initial={animate ? "hidden" : false}
+          whileInView="show"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={animate ? stagger : undefined}
+          className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {platforms.map((p) => {
+            const Icon = p.icon;
+            const inner = (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="rounded-xl bg-nq-accent-soft p-2.5 text-nq-accent">
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </div>
+                  <span className={badgeClass[p.status]}>{badgeLabel[p.status]}</span>
+                </div>
+                <h3 className="mt-5 text-xl font-semibold tracking-tight">{p.name}</h3>
+                <p className="mt-3 text-nq-muted text-sm leading-relaxed">{p.description}</p>
+                {p.href && (
+                  <span className="mt-5 inline-flex text-sm font-medium text-nq-accent">
+                    Visit live product →
+                  </span>
+                )}
+              </>
+            );
 
-      {/* Grid Cards */}
-      <div className="grid md:grid-cols-3 gap-8 mt-16">
+            if (p.href) {
+              return (
+                <motion.a
+                  key={p.name}
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variants={fadeUp}
+                  whileHover={animate ? { y: -4 } : undefined}
+                  className="nq-surface block h-full p-7 transition-colors border-nq-live/30 hover:border-nq-live/50 focus-visible:outline-none"
+                >
+                  {inner}
+                </motion.a>
+              );
+            }
 
-        {/* Card 1 */}
-        <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-blue-500/50 hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]">
-          <motion.div whileHover={{ rotate: 15, scale: 1.1 }} className="w-fit">
-            <Video className="w-10 h-10 mb-4 text-cyan-400" />
-          </motion.div>
+            return (
+              <motion.article
+                key={p.name}
+                variants={fadeUp}
+                whileHover={animate ? { y: -4 } : undefined}
+                className="nq-surface h-full p-7 transition-colors hover:border-white/20"
+              >
+                {inner}
+              </motion.article>
+            );
+          })}
+        </motion.div>
 
-          <h3 className="text-xl font-semibold">AuditionQ</h3>
-
-          <p className="text-gray-400 mt-3">
-            Conduct AI-powered video interviews with intelligent candidate
-            evaluation.
-          </p>
-        </div>
-
-        {/* Card 2 */}
-        <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-blue-500/50 hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]">
-          <motion.div whileHover={{ rotate: 15, scale: 1.1 }} className="w-fit">
-            <Users className="w-10 h-10 mb-4 text-blue-400" />
-          </motion.div>
-
-          <h3 className="text-xl font-semibold">InterviewQ</h3>
-
-          <p className="text-gray-400 mt-3">
-            Manage live interviews with collaboration and AI-powered insights.
-          </p>
-        </div>
-
-        {/* Card 3 */}
-        <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-blue-500/50 hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]">
-          <motion.div whileHover={{ rotate: 15, scale: 1.1 }} className="w-fit">
-            <ClipboardCheck className="w-10 h-10 mb-4 text-purple-400" />
-          </motion.div>
-
-          <h3 className="text-xl font-semibold">AssessQ</h3>
-
-          <p className="text-gray-400 mt-3">
-            Create skill assessments with automated scoring and detailed
-            performance analytics.
-          </p>
-        </div>
-
+        <p className="mt-8 text-center text-xs text-nq-muted">
+          Vision and exploration products have no download, store, or “launch app”
+          actions until they ship.{" "}
+          <Link href="/partner" className="text-nq-accent underline-offset-2 hover:underline">
+            Partner with us
+          </Link>{" "}
+          to discuss collaboration.
+        </p>
       </div>
     </section>
   );

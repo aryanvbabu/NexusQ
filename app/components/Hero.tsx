@@ -1,66 +1,80 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { useMotionSafe, easeOut } from "@/lib/motion";
 
 export default function Hero() {
+  const animate = useMotionSafe();
+
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black px-6"
+      className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20"
     >
-      {/* Background Glow */}
-      <div className="absolute w-[500px] h-[500px] bg-blue-500/20 blur-[180px] rounded-full -top-32 -left-20"></div>
-      <div className="absolute w-[500px] h-[500px] bg-purple-500/20 blur-[180px] rounded-full bottom-0 right-0"></div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% -10%, rgba(56,189,248,0.18), transparent 55%), radial-gradient(ellipse 40% 40% at 90% 60%, rgba(14,165,233,0.08), transparent 50%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+        }}
+      />
 
-      <div className="relative z-10 max-w-5xl text-center">
-
+      <div className="relative z-10 nq-container text-center">
         <motion.p
-          initial={{ opacity: 0, y: -20 }}
+          initial={animate ? { opacity: 0, y: -12 } : false}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="uppercase tracking-[0.3em] text-blue-400 text-sm mb-6"
+          transition={{ duration: 0.55, ease: easeOut }}
+          className="nq-eyebrow mb-6"
         >
-          NEXT GENERATION DIGITAL COMPANY
+          NexusQ Global
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
+          initial={animate ? { opacity: 0, y: 28 } : false}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-6xl md:text-7xl font-extrabold leading-tight"
+          transition={{ duration: 0.7, ease: easeOut, delay: 0.05 }}
+          className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]"
         >
-          Building
-          <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            {" "}World-Class{" "}
-          </span>
-          Digital Products
+          Building a serious digital{" "}
+          <span className="text-nq-accent">product ecosystem</span>
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={animate ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 text-gray-400 text-xl max-w-3xl mx-auto"
+          transition={{ delay: 0.25, duration: 0.6 }}
+          className="mt-7 mx-auto max-w-2xl text-lg md:text-xl text-nq-muted leading-relaxed"
         >
-          We design, build and scale AI-powered digital platforms that help
-          businesses innovate faster and grow globally.
+          NexusQ Global designs and ships digital platforms — starting with
+          AuditionQ, our live flagship product — while carefully exploring what
+          comes next.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 flex flex-col sm:flex-row gap-5 justify-center"
+          initial={animate ? { opacity: 0, y: 16 } : false}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.55, ease: easeOut }}
+          className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <button className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 rounded-xl font-semibold hover:scale-105 transition">
-            Start Your Journey
-          </button>
-
-          <button className="border border-zinc-700 bg-white/5 backdrop-blur-md px-8 py-4 rounded-xl hover:bg-white/10 transition">
-            Explore Products
-          </button>
+          <Link href="/partner" className="nq-btn nq-btn-primary">
+            Partner With Us
+          </Link>
+          <a href="#platforms" className="nq-btn nq-btn-secondary">
+            Explore Platforms
+          </a>
         </motion.div>
-
       </div>
     </section>
   );

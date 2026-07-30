@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NexusQ Global
 
-## Getting Started
+NexusQ Global is the parent company behind a digital product ecosystem. **AuditionQ** is the live flagship product. Other platforms (FurSure, RideQ, CaringMinds, Onakkodi, Future AI) are presented honestly as **vision** or **exploration**.
 
-First, run the development server:
+This repository is the NexusQ Global corporate/product website (Next.js App Router).
+
+## Local setup
 
 ```bash
+npm install
+cp .env.example .env.local
+# Fill in values in .env.local (never commit secrets)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Variable names only — put real values in `.env.local` (gitignored):
 
-## Learn More
+| Variable | Purpose |
+|----------|---------|
+| `MONGODB_URI` | MongoDB connection for existing Sign In / Sign Up |
+| `NEXTAUTH_SECRET` | NextAuth JWT secret |
+| `NEXTAUTH_URL` | App URL (e.g. `http://localhost:3000`) |
+| `RESEND_API_KEY` | Resend API key for partner form email (server-side only) |
+| `RESEND_FROM_EMAIL` | Verified Resend from address |
+| `PARTNER_INQUIRY_TO` | Destination inbox (default `admin@auditionq.com`) |
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev    # development server
+npm run build  # production build
+npm run start  # run production build
+npm run lint   # eslint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Partner email
 
-## Deploy on Vercel
+The `/partner` form posts to `/api/partner`, which sends email via **Resend** to `admin@auditionq.com` (or `PARTNER_INQUIRY_TO`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Flow:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+NexusQ form → Next.js API route → Resend → admin@auditionq.com
+```
+
+The Resend API key must never be exposed in client code.
+
+Until a custom domain is verified in Resend, use Resend’s onboarding sender and note any sandbox recipient limits in the Resend dashboard.
+
+## Deployment (Vercel)
+
+1. Push this repo to GitHub.
+2. Import the project in [Vercel](https://vercel.com).
+3. Set the same environment variables in the Vercel project settings.
+4. Deploy from `main` for production; PRs get preview deployments.
+
+Custom domain / Cloudflare are optional for v1.
+
+## Key routes
+
+| Route | Description |
+|-------|-------------|
+| `/` | Homepage story |
+| `/partner` | Partner inquiry form |
+| `/privacy` | Privacy placeholder |
+| `/terms` | Terms placeholder |
+| `/login` | Existing Sign In / Sign Up |
+
+## Product honesty
+
+- AuditionQ = **LIVE**
+- FurSure, RideQ, CaringMinds, Onakkodi = **VISION**
+- Future AI = **EXPLORATION**
+
+No fabricated metrics, testimonials, or fake availability buttons.
