@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AuditionQ",
+  title: "NexusQ",
   description: "AuditionQ - Your audition platform",
 };
 
