@@ -58,7 +58,58 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light Mode Variables */
 :root {
+  --nq-bg: #f8fafc;
+  --nq-surface: #ffffff;
+  --nq-surface-elevated: #f1f5f9;
+  --nq-text: #0f172a;
+  --nq-muted: #64748b;
+  --nq-accent: #0284c7;
+  --nq-accent-soft: rgba(2, 132, 199, 0.1);
+  --nq-border: rgba(0, 0, 0, 0.1);
+  --nq-live: #059669;
+  --nq-vision: #64748b;
+  --nq-section-y: 6rem;
+  --nq-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nq-duration: 0.65s;
+
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0f172a;
+  --primary-foreground: #f8fafc;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.15);
+  --ring: #0284c7;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: rgba(0, 0, 0, 0.1);
+  --sidebar-ring: #0284c7;
+}
+
+/* Dark Mode Variables (Activated via class="dark") */
+.dark {
   --nq-bg: #05070b;
   --nq-surface: #0c1017;
   --nq-surface-elevated: #121821;
@@ -69,9 +120,6 @@
   --nq-border: rgba(255, 255, 255, 0.1);
   --nq-live: #34d399;
   --nq-vision: #94a3b8;
-  --nq-section-y: 6rem;
-  --nq-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --nq-duration: 0.65s;
 
   --background: #05070b;
   --foreground: #f4f7fb;
@@ -96,7 +144,6 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.75rem;
   --sidebar: #0c1017;
   --sidebar-foreground: #f4f7fb;
   --sidebar-primary: #38bdf8;
@@ -113,6 +160,7 @@
   }
   body {
     @apply bg-nq-bg text-nq-text antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   html {
     @apply font-sans;
@@ -200,17 +248,17 @@
 }
 
 .nq-btn-primary:hover {
-  background: #ffffff;
+  opacity: 0.9;
 }
 
 .nq-btn-secondary {
   border: 1px solid var(--nq-border);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--nq-surface-elevated);
   color: var(--nq-text);
 }
 
 .nq-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--nq-accent);
 }
 
 .nq-badge {

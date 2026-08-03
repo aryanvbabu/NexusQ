@@ -61,19 +61,18 @@ export default function Hero() {
           AuditionQ, our live flagship product — while carefully exploring what
           comes next.
         </motion.p>
-
         <motion.div
           initial={animate ? { opacity: 0, y: 16 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.55, ease: easeOut }}
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <Link href="/partner" className="nq-btn nq-btn-primary">
-            Partner With Us
-          </Link>
-          <a href="#platforms" className="nq-btn nq-btn-secondary">
-            Explore Platforms
-          </a>
+        <Link id="hero-partner-btn" href="/partner" className="nq-btn nq-btn-primary">
+          Partner With Us
+        </Link>
+        <Link id="hero-explore-btn" href="#platforms" className="nq-btn nq-btn-secondary">
+          Explore Platforms
+        </Link>
         </motion.div>
       </div>
     </section>
