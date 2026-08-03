@@ -10,6 +10,9 @@ This repository is the NexusQ Global corporate/product website (Next.js App Rout
 npm install
 cp .env.example .env.local
 # Fill in values in .env.local (never commit secrets)
+# Local Postgres: create DB `nexusq`, then set DATABASE_URL
+# Or use Neon: set DATABASE_URL to your Neon connection string (?sslmode=require)
+npx prisma db push
 npm run dev
 ```
 
@@ -21,7 +24,7 @@ Variable names only — put real values in `.env.local` (gitignored):
 
 | Variable | Purpose |
 |----------|---------|
-| `MONGODB_URI` | MongoDB connection for existing Sign In / Sign Up |
+| `DATABASE_URL` | Neon (or other) PostgreSQL connection for Sign In / Sign Up (Prisma). Include `?sslmode=require` for Neon. |
 | `NEXTAUTH_SECRET` | NextAuth JWT secret |
 | `NEXTAUTH_URL` | App URL (e.g. `http://localhost:3000`) |
 | `RESEND_API_KEY` | Resend API key for partner form email (server-side only) |
@@ -31,10 +34,12 @@ Variable names only — put real values in `.env.local` (gitignored):
 ## Development
 
 ```bash
-npm run dev    # development server
-npm run build  # production build
-npm run start  # run production build
-npm run lint   # eslint
+npm run dev         # development server
+npm run build       # prisma generate + next build
+npm run start       # run production build
+npm run lint        # eslint
+npm run db:push     # push Prisma schema to Postgres
+npm run db:generate # regenerate Prisma Client
 ```
 
 ## Partner email

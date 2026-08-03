@@ -1,8 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/lib/models/User";
+import { prisma } from "@/lib/prisma";
 
 // On Vercel, never use a localhost NEXTAUTH_URL
 if (process.env.VERCEL_URL) {
@@ -23,14 +22,15 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email });
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
         if (!user) return null;
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        return { id: user._id.toString(), name: user.name, email: user.email };
+        return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],

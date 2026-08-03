@@ -29,7 +29,7 @@ The site is a polished corporate/product marketing surface with login, partner i
 | UI | React **19.2.4**, Tailwind CSS **4**, shadcn/ui, Lucide |
 | Motion | Framer Motion (with `prefers-reduced-motion`) |
 | Auth | NextAuth v4 (Credentials + JWT) |
-| Database | MongoDB Atlas via Mongoose |
+| Database | PostgreSQL via Prisma 7 (`@prisma/adapter-pg`) |
 | Email | Resend (server-side only) |
 | Hosting | Vercel (GitHub → auto deploy from `main`) |
 
@@ -43,7 +43,7 @@ The site is a polished corporate/product marketing surface with login, partner i
 | `/privacy` | Privacy placeholder |
 | `/terms` | Terms placeholder |
 | `/api/auth/[...nextauth]` | NextAuth handler |
-| `/api/auth/signup` | Create user (bcrypt hash → MongoDB) |
+| `/api/auth/signup` | Create user (bcrypt hash → Postgres) |
 | `/api/partner` | Validate form → Resend → inquiry inbox |
 
 ### Key source layout
@@ -55,7 +55,9 @@ app/
   login/, partner/, privacy/, terms/
   api/auth/, api/partner/
 lib/
-  mongodb.ts, models/User.ts, motion.ts, utils.ts
+  prisma.ts, generated/prisma/, motion.ts, utils.ts
+prisma/
+  schema.prisma
 ```
 
 ### Design system
@@ -70,29 +72,29 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 
 ---
 
-## 3. MongoDB setup
+## 3. PostgreSQL setup
 
 ### Connection
 
-- Helper: `lib/mongodb.ts` (cached global connection for serverless)
-- Env: `MONGODB_URI`
-- Production uses a **standard** `mongodb://` replica-set URI (not `mongodb+srv`) because some Windows/ISP DNS setups fail SRV lookups (`querySrv ECONNREFUSED`)
+- Helper: `lib/prisma.ts` (singleton + `PrismaPg` adapter for serverless-safe reuse)
+- Env: `DATABASE_URL` (Neon PostgreSQL, `sslmode=require`)
+- Hosted DB: Neon project → database **`neondb`** (ap-southeast-1)
+- Prisma schema: `prisma/schema.prisma`; CLI config: `prisma.config.ts`
+- Apply schema: `npx prisma db push` (or `npm run db:push`)
 
-### User model (`lib/models/User.ts`)
+### User model (`User` in Prisma)
 
 | Field | Notes |
 |-------|--------|
+| `id` | cuid (string PK) |
 | `name` | required |
 | `email` | required, unique |
 | `password` | required, bcrypt-hashed (cost 12) |
-| `createdAt` | default `Date.now` |
+| `createdAt` | default `now()` |
 
-Database name in URI: `auditionq` (collection created by Mongoose as `users`).
+### Production note
 
-### Atlas requirements
-
-- Network Access: allow app IPs (or `0.0.0.0/0` for Vercel)
-- Database user credentials must match `MONGODB_URI`
+Set the same Neon `DATABASE_URL` in Vercel Environment Variables (and remove any old `MONGODB_URI`). Schema is already applied on Neon via `prisma db push`.
 
 ---
 
@@ -122,7 +124,7 @@ Documented in `.env.example` (never commit real `.env.local`).
 
 | Variable | Used for |
 |----------|----------|
-| `MONGODB_URI` | Mongoose connection |
+| `DATABASE_URL` | Prisma → PostgreSQL |
 | `NEXTAUTH_SECRET` | JWT signing |
 | `NEXTAUTH_URL` | Auth canonical URL (`http://localhost:3000` locally; production Vercel URL in Vercel) |
 | `RESEND_API_KEY` | Partner email API (server only) |
@@ -135,8 +137,9 @@ Correct names (typos previously broke auth/email):
 
 - `NEXTAUTH_SECRET` / `NEXTAUTH_URL` (not `NEXAUTH_*`)
 - `PARTNER_INQUIRY_TO` (not `PARTNER_ENQUIRY_TO`)
+- `DATABASE_URL` (replace former `MONGODB_URI`)
 
-Also set: `MONGODB_URI`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
+Also set: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
 
 ---
 
@@ -164,19 +167,20 @@ Secrets stay in Vercel Environment Variables / local `.env.local` (gitignored).
 | Issue | Status / notes |
 |-------|----------------|
 | Resend **sandbox** only emails the Resend account owner until a domain is verified | Currently `PARTNER_INQUIRY_TO` may be the owner Gmail for testing; target for go-live is `admin@auditionq.com` after domain verify |
-| Windows DNS / `mongodb+srv` | Prefer standard `mongodb://` host list in `MONGODB_URI` when SRV fails |
+| Vercel env cutover | Add Neon `DATABASE_URL` in Vercel; remove old `MONGODB_URI` so production auth uses Neon |
 | `nexus-q.vercel.app` | Appears to be a **different** (Vite) project — do not confuse with this Next.js app |
 | Legal pages | Privacy/Terms are **placeholders**, not lawyer-reviewed |
 | Vision product copy | FurSure / RideQ / CaringMinds / Onakkodi use honest “vision” placeholders — replace when Lead supplies real descriptions |
 | Logo in navbar | Square stacked logo; wordmark can be hard to read at small sizes |
 
-No known blocking production bugs for browse / signup / login / partner submit (under current Resend test recipient).
+No known blocking local bugs for browse / signup / login / partner submit (under current Resend test recipient), once `DATABASE_URL` points at running Postgres.
 
 ---
 
 ## 8. Pending features (backlog — out of current v1 expansion unless Lead approves)
 
 - Verify Resend domain → deliver partner mail to `admin@auditionq.com` from a branded from-address
+- Hosted Postgres for Vercel production auth
 - Custom domain + Cloudflare (explicitly optional for v1)
 - Final legal Privacy / Terms copy
 - Real product screenshots / media for AuditionQ showcase
@@ -190,7 +194,7 @@ No known blocking production bugs for browse / signup / login / partner submit (
 
 1. **Resend domain** — verify sending domain; set `RESEND_FROM_EMAIL` + `PARTNER_INQUIRY_TO=admin@auditionq.com`; redeploy; send a real partner test.
 2. **Confirm production `NEXTAUTH_URL`** stays the stable public alias (not a one-off deployment URL).
-3. **Atlas Network Access** — ensure Vercel egress / `0.0.0.0/0` remains allowed so signup/login stay green.
+3. **Vercel env** — set Neon `DATABASE_URL` in Vercel project settings; remove old `MONGODB_URI`.
 4. **Lead content pass** — replace vision placeholders and legal placeholders when supplied.
 5. **Optional** — assign a custom domain in Vercel when ready.
 6. **Keep scope frozen** — polish and ops only unless Lead expands scope.
@@ -199,7 +203,8 @@ No known blocking production bugs for browse / signup / login / partner submit (
 
 ```bash
 npm install
-cp .env.example .env.local   # fill secrets
+cp .env.example .env.local   # fill secrets including DATABASE_URL
+npx prisma db push
 npm run dev                  # http://localhost:3000
 npm run build
 ```
@@ -216,7 +221,8 @@ npm run build
 
 ## 10. Definition of done (v1 vs remaining)
 
-**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust sections, partner form + Resend path, privacy/terms, motion, responsive nav, SEO basics, GitHub→Vercel deploy, auth/MongoDB kept working.
+**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust sections, partner form + Resend path, privacy/terms, motion, responsive nav, SEO basics, GitHub→Vercel deploy, auth on **Neon PostgreSQL** (Prisma; schema pushed).
 
 **Remaining for full “email to admin@auditionq.com” production path:** Resend domain verification + env cutover.  
+**Remaining for production auth:** add Neon `DATABASE_URL` in Vercel env (remove `MONGODB_URI`).  
 **Remaining for content maturity:** real legal text + Lead-approved vision copy.
