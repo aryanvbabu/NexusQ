@@ -1,3 +1,4 @@
+import {EcosystemGuide} from "./components/EcosystemGuide";
 import Footer from "./components/Footer";
 import PartnerCTA from "./components/PartnerCTA";
 import AuditionQ from "./components/AuditionQ";
@@ -20,6 +21,9 @@ export default function Home() {
       <Trust />
       <PartnerCTA />
       <Footer />
+
+      {/* Floating Interactive Guide */}
+      <EcosystemGuide />
     </main>
   );
 }
