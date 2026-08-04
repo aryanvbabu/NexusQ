@@ -1,6 +1,6 @@
 # NexusQ Global — Project State
 
-Last updated: 2026-08-03  
+Last updated: 2026-08-04  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
 Branch: `main`
 
@@ -42,6 +42,7 @@ The site is a polished corporate/product marketing surface with login, partner i
 | `/partner` | Partner inquiry form |
 | `/privacy` | Privacy placeholder |
 | `/terms` | Terms placeholder |
+| `/settings` | Signed-in settings (Restart Tutorial + progress) |
 | `/api/auth/[...nextauth]` | NextAuth handler |
 | `/api/auth/signup` | Create user (bcrypt hash → Postgres) |
 | `/api/partner` | Validate form → Resend → inquiry inbox |
@@ -51,14 +52,25 @@ The site is a polished corporate/product marketing surface with login, partner i
 ```text
 app/
   page.tsx, layout.tsx, providers.tsx, globals.css
-  components/   # Navbar, Hero, Vision, Ecosystem, AuditionQ, Innovation, Trust, PartnerCTA, Footer
-  login/, partner/, privacy/, terms/
+  components/   # Navbar, Hero, …, onboarding/*
+  login/, partner/, privacy/, terms/, settings/
   api/auth/, api/partner/
 lib/
   prisma.ts, generated/prisma/, motion.ts, utils.ts
 prisma/
   schema.prisma
+tutorials/      # homepage, auditionq, dashboard, profile configs + registry
 ```
+
+### Onboarding / guided tours
+
+Reusable spotlight engine under `app/components/onboarding/` (Provider, Spotlight, Tooltip, Overlay, TutorialStep). Tutorial copy lives in `tutorials/*.ts` and is registered in `tutorials/registry.ts`.
+
+- Auto-starts incomplete section tours (homepage on `/`; AuditionQ after homepage is done when `#auditionq` is visited or the section enters view)
+- Persistence: `localStorage` keys `homepage_completed`, `auditionq_completed`, `dashboard_completed`, `profile_completed` (namespaced; per-email when signed in)
+- Controls: Next, Back, Skip Tour, Finish; ESC closes; arrow keys; focus trap; compact `i / n` step label (no long progress bars)
+- Restart: `/settings` → **Restart Tutorial** (signed-in)
+- Dashboard/profile configs are ready for future routes; they do not auto-start until those pages exist
 
 ### Design system
 

@@ -9,7 +9,11 @@ export default function PartnerCTA() {
   const animate = useMotionSafe();
 
   return (
-    <section id="contact" className="nq-section relative overflow-hidden">
+    <section
+      id="contact"
+      data-tour="section-partner"
+      className="nq-section relative overflow-hidden"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
