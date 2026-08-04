@@ -80,7 +80,11 @@
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --primary: #0f172a;
+<<<<<<< HEAD
   --primary-foreground: #f8fafc;
+=======
+  --primary-foreground: #ffffff;
+>>>>>>> main
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
@@ -106,8 +110,11 @@
   --sidebar-border: rgba(0, 0, 0, 0.1);
   --sidebar-ring: #0284c7;
 }
+<<<<<<< HEAD
 
 /* Dark Mode Variables (Activated via class="dark") */
+=======
+>>>>>>> main
 .dark {
   --nq-bg: #05070b;
   --nq-surface: #0c1017;
@@ -143,6 +150,10 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
   --sidebar: #0c1017;
   --sidebar-foreground: #f4f7fb;
   --sidebar-primary: #38bdf8;
@@ -157,10 +168,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+<<<<<<< HEAD
   body {
     @apply bg-nq-bg text-nq-text antialiased;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
+=======
+body {
+  background: var(--background);
+  color: var(--foreground);
+  @apply antialiased;
+}
+>>>>>>> main
   html {
     @apply font-sans;
     scroll-behavior: smooth;

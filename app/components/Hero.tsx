@@ -3,23 +3,24 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMotionSafe, easeOut } from "@/lib/motion";
+import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
 
 export default function Hero() {
   const animate = useMotionSafe();
 
   return (
-    <section
-      id="home"
-      className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20"
-    >
+  <section
+  id="home"
+  className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20 bg-background text-foreground transition-colors duration-300"
+>
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 50% at 50% -10%, rgba(56,189,248,0.18), transparent 55%), radial-gradient(ellipse 40% 40% at 90% 60%, rgba(14,165,233,0.08), transparent 50%)",
-        }}
-      />
+  aria-hidden
+  className="pointer-events-none absolute inset-0"
+  style={{
+    background:
+      "radial-gradient(ellipse 70% 50% at 50% -10%, var(--nq-accent-soft), transparent 55%)",
+  }}
+/>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.35]"
@@ -67,12 +68,22 @@ export default function Hero() {
           transition={{ delay: 0.4, duration: 0.55, ease: easeOut }}
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
+<<<<<<< HEAD
         <Link id="hero-partner-btn" href="/partner" className="nq-btn nq-btn-primary">
           Partner With Us
         </Link>
         <Link id="hero-explore-btn" href="#platforms" className="nq-btn nq-btn-secondary">
           Explore Platforms
         </Link>
+=======
+          <Link href="/partner" className="nq-btn nq-btn-primary">
+            Partner With Us
+          </Link>
+          <GuideMeButton className="nq-btn nq-btn-secondary inline-flex items-center justify-center gap-1.5" />
+          <a href="#platforms" className="nq-btn nq-btn-secondary">
+            Explore Platforms
+          </a>
+>>>>>>> main
         </motion.div>
       </div>
     </section>

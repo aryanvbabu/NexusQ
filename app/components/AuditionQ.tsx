@@ -8,7 +8,11 @@ export default function AuditionQ() {
   const animate = useMotionSafe();
 
   return (
-    <section id="auditionq" className="nq-section relative overflow-hidden">
+    <section
+      id="auditionq"
+      data-tour="section-auditionq"
+      className="nq-section relative overflow-hidden"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -27,7 +31,11 @@ export default function AuditionQ() {
           className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-center"
         >
           <div>
-            <motion.div variants={fadeUp} className="flex items-center gap-3">
+            <motion.div
+              variants={fadeUp}
+              className="flex items-center gap-3"
+              data-tour="aq-live-badge"
+            >
               <span className="nq-badge nq-badge-live">Live</span>
               <span className="text-sm text-nq-muted">Flagship product</span>
             </motion.div>
@@ -60,7 +68,7 @@ export default function AuditionQ() {
               </li>
             </motion.ul>
 
-            <motion.div variants={fadeUp} className="mt-9">
+            <motion.div variants={fadeUp} className="mt-9" data-tour="aq-cta">
               <a
                 href="https://www.auditionq.com/"
                 target="_blank"
@@ -75,6 +83,7 @@ export default function AuditionQ() {
 
           <motion.div
             variants={fadeUp}
+            data-tour="aq-proof"
             className="nq-surface relative overflow-hidden p-8 min-h-[280px] flex flex-col justify-between"
           >
             <div>

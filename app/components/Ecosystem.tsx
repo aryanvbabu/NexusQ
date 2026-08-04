@@ -75,7 +75,11 @@ export default function Ecosystem() {
   const animate = useMotionSafe();
 
   return (
-    <section id="platforms" className="nq-section bg-nq-surface/40">
+    <section
+      id="platforms"
+      data-tour="section-platforms"
+      className="nq-section bg-nq-surface/40"
+    >
       <div className="nq-container">
         <motion.div
           initial={animate ? "hidden" : false}

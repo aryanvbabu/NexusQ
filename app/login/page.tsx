@@ -47,6 +47,8 @@ export default function LoginPage() {
           setError("Account created but login failed. Please sign in.");
           setIsSignUp(false);
         } else {
+          // Force homepage guide after first signup
+          sessionStorage.setItem("nq_guide_me", "homepage");
           router.push("/");
           router.refresh();
         }
@@ -60,6 +62,7 @@ export default function LoginPage() {
         if (res?.error) {
           setError("Invalid email or password");
         } else {
+          sessionStorage.setItem("nq_guide_me", "homepage");
           router.push("/");
           router.refresh();
         }
