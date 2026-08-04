@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { ChevronDown, Menu, Settings, X } from "lucide-react";
+import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
 
 const links = [
   { href: "/#home", label: "Home" },
@@ -71,6 +72,7 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
+          <GuideMeButton />
           <Link href="/partner" className="nq-btn nq-btn-primary !py-2 !px-3.5 !text-sm">
             Partner With Us
           </Link>
@@ -158,6 +160,7 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="mt-5 flex flex-col gap-3">
+            <GuideMeButton className="nq-btn nq-btn-secondary w-full inline-flex items-center justify-center gap-1.5" />
             <Link
               href="/partner"
               className="nq-btn nq-btn-primary w-full"

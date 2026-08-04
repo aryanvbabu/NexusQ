@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getTutorial, findMatchingTutorials } from "@/tutorials/registry";
 import {
@@ -25,12 +25,16 @@ import type {
 } from "@/tutorials/types";
 import TutorialChrome from "./TutorialStep";
 
+const FORCE_TOUR_KEY = "nq_guide_me";
+
 type OnboardingContextValue = {
   active: TutorialConfig | null;
   stepIndex: number;
   completion: CompletionState;
   isOpen: boolean;
   startTutorial: (id: TutorialId) => boolean;
+  /** Start a tour now for anyone (ignores completion). Used by Guide me. */
+  guideMe: (id?: TutorialId) => void;
   next: () => void;
   back: () => void;
   skip: () => void;
@@ -53,8 +57,28 @@ function getHash() {
   return window.location.hash;
 }
 
+function waitForSelector(selector: string, attempts = 8, delayMs = 250): Promise<boolean> {
+  return new Promise((resolve) => {
+    let left = attempts;
+    const tick = () => {
+      if (document.querySelector(selector)) {
+        resolve(true);
+        return;
+      }
+      left -= 1;
+      if (left <= 0) {
+        resolve(false);
+        return;
+      }
+      window.setTimeout(tick, delayMs);
+    };
+    tick();
+  });
+}
+
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session, status } = useSession();
   const userKey = session?.user?.email ?? null;
 
@@ -68,7 +92,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const activeRef = useRef(active);
   activeRef.current = active;
 
-  // Hydrate completion after mount / when user changes
   useEffect(() => {
     setCompletion(readCompletion(userKey));
     setHydrated(true);
@@ -90,17 +113,42 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [userKey]
   );
 
+  const launchTutorial = useCallback(async (id: TutorialId) => {
+    const config = getTutorial(id);
+    if (!config || config.steps.length === 0) return false;
+    const ready = await waitForSelector(config.steps[0].selector);
+    if (!ready) return false;
+    setActive(config);
+    setStepIndex(0);
+    return true;
+  }, []);
+
   const startTutorial = useCallback(
     (id: TutorialId) => {
-      const config = getTutorial(id);
-      if (!config || config.steps.length === 0) return false;
-      // Don't interrupt an active tour
-      if (active) return false;
-      setActive(config);
-      setStepIndex(0);
+      if (activeRef.current) return false;
+      void launchTutorial(id);
       return true;
     },
-    [active]
+    [launchTutorial]
+  );
+
+  const guideMe = useCallback(
+    (id: TutorialId = "homepage") => {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(FORCE_TOUR_KEY, id);
+      }
+      if (pathname !== "/") {
+        router.push("/");
+        return;
+      }
+      void (async () => {
+        setActive(null);
+        setStepIndex(0);
+        window.sessionStorage.removeItem(FORCE_TOUR_KEY);
+        await launchTutorial(id);
+      })();
+    },
+    [pathname, router, launchTutorial]
   );
 
   const next = useCallback(() => {
@@ -132,31 +180,43 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setStepIndex(0);
   }, [userKey]);
 
+  // Honor Guide me / post-login force flag
+  useEffect(() => {
+    if (!hydrated || pathname !== "/") return;
+    const forced = window.sessionStorage.getItem(FORCE_TOUR_KEY) as TutorialId | null;
+    if (!forced) return;
+    window.sessionStorage.removeItem(FORCE_TOUR_KEY);
+    void launchTutorial(forced);
+  }, [hydrated, pathname, launchTutorial]);
+
   // Auto-start matching incomplete tutorials
   useEffect(() => {
     if (!hydrated || status === "loading" || active) return;
-    // Delay so layout / data-tour targets exist
-    const timer = window.setTimeout(() => {
-      const matches = findMatchingTutorials(pathname, hash);
+    if (pathname !== "/") return;
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      const matches = findMatchingTutorials(pathname, getHash());
       const candidate =
         matches.find((t) => t.id === "homepage" && !completion[t.completionKey]) ??
         matches.find((t) => !completion[t.completionKey]);
 
-      if (!candidate) return;
-      // AuditionQ waits until homepage tour is completed
+      if (!candidate || cancelled) return;
       if (candidate.id === "auditionq" && !completion.homepage_completed) return;
 
-      const first = candidate.steps[0];
-      if (!document.querySelector(first.selector)) return;
-
+      const ok = await waitForSelector(candidate.steps[0].selector);
+      if (!ok || cancelled || activeRef.current) return;
       setActive(candidate);
       setStepIndex(0);
-    }, 600);
+    }, 400);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [hydrated, status, pathname, hash, completion, active]);
 
-  // IntersectionObserver: start auditionq when section enters view after homepage done
+  // IntersectionObserver: AuditionQ section tour after homepage done
   useEffect(() => {
     if (!hydrated || active || completion.auditionq_completed) return;
     if (!completion.homepage_completed) return;
@@ -172,7 +232,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         if (!hit) return;
         const config = getTutorial("auditionq");
         if (!config) return;
-        // Re-read completion to avoid stale closure races
         const latest = readCompletion(userKey);
         if (!latest.homepage_completed || latest.auditionq_completed) return;
         setActive(config);
@@ -198,6 +257,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       completion,
       isOpen: Boolean(active),
       startTutorial,
+      guideMe,
       next,
       back,
       skip,
@@ -209,6 +269,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       stepIndex,
       completion,
       startTutorial,
+      guideMe,
       next,
       back,
       skip,

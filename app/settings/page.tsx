@@ -15,12 +15,6 @@ export default function SettingsPage() {
   const { resetAll, completion } = useOnboarding();
   const [restarted, setRestarted] = useState(false);
 
-  const handleRestart = () => {
-    resetAll();
-    setRestarted(true);
-    router.push("/");
-  };
-
   return (
     <main className="min-h-screen bg-nq-bg text-nq-text">
       <Navbar />
@@ -86,7 +80,14 @@ export default function SettingsPage() {
 
           <button
             type="button"
-            onClick={handleRestart}
+            onClick={() => {
+              resetAll();
+              if (typeof window !== "undefined") {
+                window.sessionStorage.setItem("nq_guide_me", "homepage");
+              }
+              setRestarted(true);
+              router.push("/");
+            }}
             className="nq-btn nq-btn-primary mt-7 inline-flex items-center gap-2"
             aria-label="Restart all tutorials"
           >

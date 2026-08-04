@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMotionSafe, easeOut } from "@/lib/motion";
+import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
 
 export default function Hero() {
   const animate = useMotionSafe();
@@ -71,6 +72,7 @@ export default function Hero() {
           <Link href="/partner" className="nq-btn nq-btn-primary">
             Partner With Us
           </Link>
+          <GuideMeButton className="nq-btn nq-btn-secondary inline-flex items-center justify-center gap-1.5" />
           <a href="#platforms" className="nq-btn nq-btn-secondary">
             Explore Platforms
           </a>
