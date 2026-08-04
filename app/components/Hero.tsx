@@ -9,18 +9,18 @@ export default function Hero() {
   const animate = useMotionSafe();
 
   return (
-    <section
-      id="home"
-      className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20"
-    >
+  <section
+  id="home"
+  className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20 bg-background text-foreground transition-colors duration-300"
+>
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 50% at 50% -10%, rgba(56,189,248,0.18), transparent 55%), radial-gradient(ellipse 40% 40% at 90% 60%, rgba(14,165,233,0.08), transparent 50%)",
-        }}
-      />
+  aria-hidden
+  className="pointer-events-none absolute inset-0"
+  style={{
+    background:
+      "radial-gradient(ellipse 70% 50% at 50% -10%, var(--nq-accent-soft), transparent 55%)",
+  }}
+/>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.35]"

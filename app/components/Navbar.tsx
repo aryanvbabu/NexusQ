@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { ChevronDown, Menu, Settings, X } from "lucide-react";
 import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
+import ThemeToggle from "./ThemeToggle";
 
 const links = [
   { href: "/#home", label: "Home" },
@@ -72,6 +73,7 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <GuideMeButton />
           <Link href="/partner" className="nq-btn nq-btn-primary !py-2 !px-3.5 !text-sm">
             Partner With Us
