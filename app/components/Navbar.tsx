@@ -4,14 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-<<<<<<< HEAD
-import { Menu, X } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
-=======
 import { ChevronDown, Menu, Settings, X } from "lucide-react";
 import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
-import ThemeToggle from "./ThemeToggle";
->>>>>>> main
 
 const links = [
   { href: "/#home", label: "Home" },
@@ -78,11 +72,7 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
-          <ThemeToggle />
-<<<<<<< HEAD
-=======
           <GuideMeButton />
->>>>>>> main
           <Link href="/partner" className="nq-btn nq-btn-primary !py-2 !px-3.5 !text-sm">
             Partner With Us
           </Link>
@@ -139,19 +129,16 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
-          <button
-            type="button"
-            className="nq-btn nq-btn-secondary !p-2"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="md:hidden nq-btn nq-btn-secondary !p-2"
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          aria-label={open ? "Close menu" : "Open menu"}
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
       {open && (
