@@ -3,24 +3,24 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMotionSafe, easeOut } from "@/lib/motion";
-import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
 
 export default function Hero() {
   const animate = useMotionSafe();
 
   return (
-  <section
-  id="home"
-  className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20 bg-background text-foreground transition-colors duration-300"
->
+    <section
+      id="home"
+      className="relative min-h-[100svh] flex items-center overflow-hidden px-6 pt-28 pb-20 bg-background text-foreground transition-colors duration-300"
+    >
       <div
-  aria-hidden
-  className="pointer-events-none absolute inset-0"
-  style={{
-    background:
-      "radial-gradient(ellipse 70% 50% at 50% -10%, var(--nq-accent-soft), transparent 55%)",
-  }}
-/>
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% -10%, var(--nq-accent-soft), transparent 55%)",
+        }}
+      />
+
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.35]"
@@ -28,7 +28,8 @@ export default function Hero() {
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
           backgroundSize: "64px 64px",
-          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+          maskImage:
+            "radial-gradient(ellipse at center, black 30%, transparent 75%)",
         }}
       />
 
@@ -62,28 +63,28 @@ export default function Hero() {
           AuditionQ, our live flagship product — while carefully exploring what
           comes next.
         </motion.p>
+
         <motion.div
           initial={animate ? { opacity: 0, y: 16 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.55, ease: easeOut }}
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
-<<<<<<< HEAD
-        <Link id="hero-partner-btn" href="/partner" className="nq-btn nq-btn-primary">
-          Partner With Us
-        </Link>
-        <Link id="hero-explore-btn" href="#platforms" className="nq-btn nq-btn-secondary">
-          Explore Platforms
-        </Link>
-=======
-          <Link href="/partner" className="nq-btn nq-btn-primary">
+          <Link
+            id="hero-partner-btn"
+            href="/partner"
+            className="nq-btn nq-btn-primary"
+          >
             Partner With Us
           </Link>
-          <GuideMeButton className="nq-btn nq-btn-secondary inline-flex items-center justify-center gap-1.5" />
-          <a href="#platforms" className="nq-btn nq-btn-secondary">
+
+          <Link
+            id="hero-explore-btn"
+            href="#platforms"
+            className="nq-btn nq-btn-secondary"
+          >
             Explore Platforms
-          </a>
->>>>>>> main
+          </Link>
         </motion.div>
       </div>
     </section>
