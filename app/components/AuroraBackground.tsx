@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CSSProperties } from "react";
 
 export default function AuroraBackground() {
   return (
