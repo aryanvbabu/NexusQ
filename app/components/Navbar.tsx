@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { ChevronDown, Menu, Settings, X } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import GuideMeButton from "@/app/components/onboarding/GuideMeButton";
 import ThemeToggle from "./ThemeToggle";
 
@@ -18,7 +18,6 @@ const links = [
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -48,58 +47,44 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
   return (
     <header
       data-testid="site-navbar"
-      className="fixed inset-x-0 top-0 z-[9999] px-3 pt-3 sm:px-4 sm:pt-4"
+      className="fixed inset-x-0 top-0 z-[9999] px-2 pt-3 sm:px-4 sm:pt-4"
     >
       <nav
         aria-label="Primary"
-        className="mx-auto w-full max-w-7xl rounded-2xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.55)]"
+        className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.55)]"
         style={{
           backgroundColor: scrolled
             ? "rgba(8, 12, 20, 0.98)"
-            : "rgba(10, 14, 22, 0.96)",
+            : "rgba(10, 14, 22, 0.94)",
         }}
       >
-        <div className="flex items-center justify-between gap-3 px-3 py-2.5 sm:px-5 sm:py-3">
+        {/* Same layout as desktop screenshot on every screen size */}
+        <div className="flex items-center gap-3 overflow-x-auto px-3 py-2.5 sm:gap-4 sm:px-5 sm:py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Link
             href="/"
             data-tour="nav-brand"
-            className="relative z-[1] block shrink-0 overflow-hidden rounded-xl ring-1 ring-white/20"
+            className="block shrink-0 overflow-hidden rounded-xl ring-1 ring-white/15"
             aria-label="NexusQ Global home"
-            onClick={() => setOpen(false)}
           >
             <Image
               src="/logo.png"
               alt="NexusQ Global"
               width={72}
               height={72}
-              className="h-11 w-11 object-cover sm:h-14 sm:w-14"
+              className="h-12 w-12 object-cover sm:h-14 sm:w-14"
               priority
             />
           </Link>
 
-          <ul className="hidden items-center gap-7 text-sm md:flex">
+          <ul className="flex shrink-0 items-center gap-4 text-sm sm:gap-6 md:gap-7">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-white/80 transition-colors hover:text-cyan-300"
+                  className="whitespace-nowrap text-white/80 transition-colors hover:text-cyan-300"
                 >
                   {link.label}
                 </Link>
@@ -107,12 +92,12 @@ export default function Navbar() {
             ))}
           </ul>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <GuideMeButton />
             <Link
               href="/partner"
-              className="nq-btn nq-btn-primary !px-3.5 !py-2 !text-sm border border-[#22D3EE] text-white"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-[#22D3EE] px-3.5 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-110"
               style={{
                 backgroundColor: "#22D3EE",
                 boxShadow: "0 0 18px rgba(34,211,238,0.28)",
@@ -122,7 +107,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/settings"
-              className="nq-btn nq-btn-secondary !px-3 !py-2 !text-sm"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white hover:bg-white/10"
               aria-label="Settings"
             >
               <Settings className="h-4 w-4" aria-hidden />
@@ -131,7 +116,7 @@ export default function Navbar() {
               <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
-                  className="nq-btn nq-btn-secondary !px-3.5 !py-2 !text-sm inline-flex items-center gap-1.5"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-white hover:bg-white/10"
                   aria-expanded={userMenuOpen}
                   aria-haspopup="menu"
                   onClick={() => setUserMenuOpen((v) => !v)}
@@ -171,86 +156,13 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="nq-btn nq-btn-secondary !px-3.5 !py-2 !text-sm"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/10"
               >
                 Sign In
               </Link>
             )}
           </div>
-
-          <div className="relative z-[1] flex items-center gap-2 md:hidden">
-            <ThemeToggle />
-            <button
-              type="button"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/25 bg-white/15 text-white"
-              aria-expanded={open}
-              aria-controls="mobile-nav"
-              aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => setOpen((v) => !v)}
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
         </div>
-
-        {open ? (
-          <div
-            id="mobile-nav"
-            className="border-t border-white/10 px-4 py-4 md:hidden"
-          >
-            <ul className="flex flex-col gap-1 text-sm">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="block rounded-lg px-3 py-2.5 text-white/85 hover:bg-white/5 hover:text-white"
-                    onClick={() => setOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 flex flex-col gap-3">
-              <GuideMeButton />
-              <Link
-                href="/partner"
-                className="nq-btn nq-btn-primary w-full text-white"
-                style={{ backgroundColor: "#22D3EE" }}
-                onClick={() => setOpen(false)}
-              >
-                Partner With Us
-              </Link>
-              <Link
-                href="/settings"
-                className="nq-btn nq-btn-secondary w-full"
-                onClick={() => setOpen(false)}
-              >
-                Settings
-              </Link>
-              {session ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(false);
-                    signOut();
-                  }}
-                  className="nq-btn nq-btn-secondary w-full"
-                >
-                  Sign Out ({session.user?.name})
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className="nq-btn nq-btn-secondary w-full"
-                  onClick={() => setOpen(false)}
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        ) : null}
       </nav>
     </header>
   );
