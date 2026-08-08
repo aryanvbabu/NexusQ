@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 
 import { ChevronDown, Menu, Settings, X } from "lucide-react";
@@ -21,6 +22,7 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,24 +42,73 @@ export default function Navbar() {
       document.removeEventListener("keydown", onKey);
     };
   }, [userMenuOpen]);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+  
+    handleScroll(); // Set initial state
+  
+    window.addEventListener("scroll", handleScroll);
+  
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-nq-border bg-nq-bg/80 backdrop-blur-md">
-      <div className="nq-container flex items-center justify-between px-6 py-3">
+    <motion.nav
+  animate={{
+    scale: scrolled ? 0.98 : 1,
+    y: scrolled ? -3 : 0,
+    opacity: 1,
+  }}
+  transition={{
+    duration: 0.45,
+    ease: "easeOut",
+  }}
+  className="fixed top-4 left-1/2 z-50 w-[96%] max-w-7xl -translate-x-1/2 rounded-2xl border border-white/10 bg-black/35 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition-all duration-500"
+>
+  <div
+  aria-hidden
+  className="pointer-events-none absolute inset-0 rounded-2xl opacity-40"
+  style={{
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.06), transparent 40%)",
+  }}
+/>
+     <div className="flex items-center justify-between px-7 py-3">
         <Link
           href="/"
           data-tour="nav-brand"
           className="block overflow-hidden rounded-xl ring-1 ring-white/10 shrink-0"
           aria-label="NexusQ Global home"
         >
-          <Image
-            src="/logo.png"
-            alt="NexusQ Global"
-            width={72}
-            height={72}
-            className="h-[64px] w-[64px] object-cover"
-            priority
-          />
+         <motion.div
+  animate={{
+    y: [0, -4, 0],
+    rotate: [0, 2, 0, -2, 0],
+    scale: [1, 1.03, 1],
+  }}
+  transition={{
+    duration: 6,
+    repeat: Infinity,
+    ease: "easeInOut",
+  }}
+  whileHover={{
+    scale: 1.12,
+    rotate: 8,
+  }}
+>
+  <Image
+    src="/logo.png"
+    alt="NexusQ Global"
+    width={72}
+    height={72}
+    className="h-[64px] w-[64px] object-cover"
+    priority
+  />
+</motion.div>
         </Link>
 
         <ul className="hidden md:flex items-center gap-7 text-sm text-nq-muted">
@@ -65,7 +116,7 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="hover:text-nq-text transition-colors focus-visible:outline-none"
+               className="relative text-white/70 hover:text-cyan-300 transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-cyan-400 after:transition-all after:duration-300 hover:after:w-full"
               >
                 {link.label}
               </Link>
@@ -76,9 +127,16 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
           <GuideMeButton />
-          <Link href="/partner" className="nq-btn nq-btn-primary !py-2 !px-3.5 !text-sm">
-            Partner With Us
-          </Link>
+         <Link
+  href="/partner"
+  className="nq-btn nq-btn-primary !py-2 !px-3.5 !text-sm text-white border border-[#22D3EE] transition-all duration-300 hover:brightness-110"
+  style={{
+    backgroundColor: "#22D3EE",
+    boxShadow: "0 0 18px rgba(34,211,238,0.28)",
+  }}
+>
+  Partner With Us
+</Link>
           <Link
             href="/settings"
             className="nq-btn nq-btn-secondary !py-2 !px-3 !text-sm"
@@ -166,10 +224,12 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="mt-5 flex flex-col gap-3">
-            <GuideMeButton className="nq-btn nq-btn-secondary w-full inline-flex items-center justify-center gap-1.5" />
+           
+  <GuideMeButton />
+</div>
             <Link
               href="/partner"
-              className="nq-btn nq-btn-primary w-full"
+              className="nq-btn nq-btn-primary w-full shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:shadow-[0_0_55px_rgba(34,211,238,0.55)] transition-all duration-500"
               onClick={() => setOpen(false)}
             >
               Partner With Us
@@ -201,8 +261,7 @@ export default function Navbar() {
               </Link>
             )}
           </div>
-        </div>
       )}
-    </nav>
+    </motion.nav>
   );
-}
+  }

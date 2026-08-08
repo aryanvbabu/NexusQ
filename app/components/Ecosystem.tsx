@@ -1,7 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clapperboard, PawPrint, Car, HeartPulse, Shirt, Sparkles } from "lucide-react";
+import {
+  Clapperboard,
+  PawPrint,
+  Car,
+  HeartPulse,
+  Shirt,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
 
@@ -91,9 +98,11 @@ export default function Ecosystem() {
           <motion.p variants={fadeUp} className="nq-eyebrow">
             Ecosystem
           </motion.p>
+
           <motion.h2 variants={fadeUp} className="nq-heading mt-4">
             Platforms across live, vision, and exploration
           </motion.h2>
+
           <motion.p variants={fadeUp} className="nq-lede mx-auto">
             Only AuditionQ is live today. Every other platform below is clearly
             marked as vision or exploration — never presented as available.
@@ -105,22 +114,48 @@ export default function Ecosystem() {
           whileInView="show"
           viewport={{ once: true, margin: "-40px" }}
           variants={animate ? stagger : undefined}
-          className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {platforms.map((p) => {
             const Icon = p.icon;
+
             const inner = (
               <>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="rounded-xl bg-nq-accent-soft p-2.5 text-nq-accent">
+                {/* Hover Glow */}
+                <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                  <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
+                </div>
+                <motion.div
+  className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+  animate={{ x: ["-120%", "120%"] }}
+  transition={{
+    duration: 2.8,
+    repeat: Infinity,
+    repeatDelay: 4,
+    ease: "easeInOut",
+  }}
+/>
+
+                <div className="relative flex items-start justify-between gap-3">
+                 <div className="rounded-2xl bg-cyan-500/10 p-3 text-cyan-400 transition-all duration-500 group-hover:scale-125 group-hover:rotate-6 group-hover:bg-cyan-500/20">
                     <Icon className="h-5 w-5" aria-hidden />
                   </div>
-                  <span className={badgeClass[p.status]}>{badgeLabel[p.status]}</span>
+
+                  <span className={badgeClass[p.status]}>
+                    {badgeLabel[p.status]}
+                  </span>
                 </div>
-                <h3 className="mt-5 text-xl font-semibold tracking-tight">{p.name}</h3>
-                <p className="mt-3 text-nq-muted text-sm leading-relaxed">{p.description}</p>
+
+                <h3 className="relative mt-5 text-xl font-semibold tracking-tight">
+                  {p.name}
+                </h3>
+
+                <p className="relative mt-3 text-sm leading-relaxed text-nq-muted">
+                  {p.description}
+                </p>
+
                 {p.href && (
-                  <span className="mt-5 inline-flex text-sm font-medium text-nq-accent">
+                  <span className="relative mt-5 inline-flex text-sm font-medium text-cyan-400 transition-all duration-300 group-hover:translate-x-1">
                     Visit live product →
                   </span>
                 )}
@@ -135,8 +170,16 @@ export default function Ecosystem() {
                   target="_blank"
                   rel="noopener noreferrer"
                   variants={fadeUp}
-                  whileHover={animate ? { y: -4 } : undefined}
-                  className="nq-surface block h-full p-7 transition-colors border-nq-live/30 hover:border-nq-live/50 focus-visible:outline-none"
+                  whileHover={
+  animate
+    ? {
+        y: -14,
+        scale: 1.04,
+        rotateX: 3,
+      }
+    : undefined
+}
+                  className="group relative overflow-hidden nq-surface block h-full rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-7 transition-all duration-500 hover:border-cyan-400/60 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)] focus-visible:outline-none"
                 >
                   {inner}
                 </motion.a>
@@ -147,8 +190,16 @@ export default function Ecosystem() {
               <motion.article
                 key={p.name}
                 variants={fadeUp}
-                whileHover={animate ? { y: -4 } : undefined}
-                className="nq-surface h-full p-7 transition-colors hover:border-white/20"
+                whileHover={
+                  animate
+                    ? {
+                        y: -14,
+                        scale: 1.04,
+                        rotateX: 3,
+                      }
+                    : undefined
+                }
+                className="group relative overflow-hidden nq-surface h-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-7 transition-all duration-500 hover:border-cyan-400/30 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)]"
               >
                 {inner}
               </motion.article>
@@ -157,9 +208,12 @@ export default function Ecosystem() {
         </motion.div>
 
         <p className="mt-8 text-center text-xs text-nq-muted">
-          Vision and exploration products have no download, store, or “launch app”
-          actions until they ship.{" "}
-          <Link href="/partner" className="text-nq-accent underline-offset-2 hover:underline">
+          Vision and exploration products have no download, store, or "launch
+          app" actions until they ship.{" "}
+          <Link
+            href="/partner"
+            className="text-nq-accent underline-offset-2 hover:underline"
+          >
             Partner with us
           </Link>{" "}
           to discuss collaboration.

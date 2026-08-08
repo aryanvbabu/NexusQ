@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Innovation from "./components/Innovation";
 import Trust from "./components/Trust";
+import Future from "./components/Future";
 
 export default function Home() {
   return (
@@ -19,8 +20,10 @@ export default function Home() {
       <AuditionQ />
       <Innovation />
       <Trust />
+      <Future />
       <PartnerCTA />
       <Footer />
+      
 
       {/* Floating Interactive Guide */}
       <EcosystemGuide />
