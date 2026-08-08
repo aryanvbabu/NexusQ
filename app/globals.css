@@ -295,3 +295,107 @@ body {
   background: var(--nq-accent-soft);
   border: 1px solid rgba(56, 189, 248, 0.28);
 }
+
+/* Aurora — static on mobile, light CSS drift on desktop only */
+.nq-aurora-ribbon {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  will-change: auto;
+  pointer-events: none;
+}
+
+.nq-aurora-a {
+  top: -4rem;
+  left: 50%;
+  height: 16rem;
+  width: min(140vw, 36rem);
+  translate: -50% 0;
+  opacity: 0.7;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(34, 211, 238, 0.24),
+    transparent 70%
+  );
+}
+
+.nq-aurora-b {
+  top: 4rem;
+  left: 10%;
+  height: 13rem;
+  width: min(120vw, 30rem);
+  opacity: 0.55;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(16, 185, 129, 0.18),
+    transparent 70%
+  );
+}
+
+.nq-aurora-c {
+  top: 7rem;
+  right: -8%;
+  height: 15rem;
+  width: min(110vw, 28rem);
+  opacity: 0.5;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(59, 130, 246, 0.2),
+    transparent 70%
+  );
+}
+
+.nq-aurora-stars {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.9) 1px, transparent 2px),
+    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.85) 1px, transparent 2px),
+    radial-gradient(circle at 45% 15%, rgba(255, 255, 255, 0.8) 1px, transparent 2px),
+    radial-gradient(circle at 90% 10%, rgba(255, 223, 120, 0.9) 1.5px, transparent 3px),
+    radial-gradient(circle at 10% 60%, rgba(255, 255, 255, 0.75) 1px, transparent 2px),
+    radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.7) 1px, transparent 2px),
+    radial-gradient(circle at 82% 55%, rgba(255, 223, 120, 0.85) 1.5px, transparent 3px),
+    radial-gradient(circle at 30% 85%, rgba(255, 255, 255, 0.75) 1px, transparent 2px);
+  background-repeat: no-repeat;
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+  .nq-aurora-a {
+    animation: nq-aurora-a 28s ease-in-out infinite;
+  }
+  .nq-aurora-b {
+    animation: nq-aurora-b 34s ease-in-out infinite;
+  }
+  .nq-aurora-c {
+    animation: nq-aurora-c 40s ease-in-out infinite;
+  }
+}
+
+@keyframes nq-aurora-a {
+  0%,
+  100% {
+    translate: -50% 0;
+  }
+  50% {
+    translate: calc(-50% + 2rem) 1rem;
+  }
+}
+
+@keyframes nq-aurora-b {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: -1.5rem 1.25rem;
+  }
+}
+
+@keyframes nq-aurora-c {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: -1.25rem -1rem;
+  }
+}

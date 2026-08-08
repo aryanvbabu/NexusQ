@@ -208,8 +208,8 @@ export default function Ecosystem() {
         </motion.div>
 
         <p className="mt-8 text-center text-xs text-nq-muted">
-          Vision and exploration products have no download, store, or "launch
-          app" actions until they ship.{" "}
+          Vision and exploration products have no download, store, or &quot;launch
+          app&quot; actions until they ship.{" "}
           <Link
             href="/partner"
             className="text-nq-accent underline-offset-2 hover:underline"
