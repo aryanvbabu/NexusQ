@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 const statements = [
   {
@@ -25,9 +25,9 @@ export default function Trust() {
     <section id="trust" className="nq-section">
       <div className="nq-container">
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="max-w-3xl mx-auto text-center"
         >
@@ -44,9 +44,9 @@ export default function Trust() {
         </motion.div>
 
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="mt-12 grid gap-5 md:grid-cols-3"
         >

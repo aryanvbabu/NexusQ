@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 const pillars = [
   {
@@ -34,13 +34,13 @@ export default function Vision() {
           background: `
             linear-gradient(
               to bottom,
-              rgba(8,20,32,0.18) 0%,
-              rgba(5,7,11,0.92) 30%,
-              rgba(5,7,11,1) 100%
+              rgba(8,20,32,0.08) 0%,
+              rgba(5,7,11,0.55) 40%,
+              rgba(5,7,11,0.72) 100%
             ),
             radial-gradient(
               ellipse at top center,
-              rgba(56,189,248,0.08),
+              rgba(56,189,248,0.06),
               transparent 70%
             )
           `,
@@ -50,7 +50,7 @@ export default function Vision() {
       <div className="nq-container">
         <div
   aria-hidden
-  className="absolute left-1/2 top-20 -translate-x-1/2 h-64 w-[700px] rounded-full blur-[120px] opacity-40"
+  className="absolute left-1/2 top-20 -translate-x-1/2 h-40 w-[min(100vw,28rem)] md:h-64 md:w-[700px] rounded-full blur-[80px] md:blur-[120px] opacity-40"
   style={{
     background:
       "radial-gradient(circle, rgba(34,211,238,0.18) 0%, transparent 70%)",
@@ -58,9 +58,9 @@ export default function Vision() {
 />
         <motion.div
           variants={animate ? stagger : undefined}
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={inView}
           className="max-w-3xl"
         >
           <motion.p variants={fadeUp} className="nq-eyebrow">
@@ -86,9 +86,9 @@ export default function Vision() {
 
         <motion.div
           variants={animate ? stagger : undefined}
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
+          viewport={inView}
           className="mt-14 grid gap-6 md:grid-cols-3"
         >
           {pillars.map((item, index) => (

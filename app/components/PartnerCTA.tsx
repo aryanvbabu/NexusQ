@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 export default function PartnerCTA() {
   const animate = useMotionSafe();
@@ -24,9 +24,9 @@ export default function PartnerCTA() {
       />
 
       <motion.div
-        initial={animate ? "hidden" : false}
+        initial={false}
         whileInView="show"
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={inView}
         variants={animate ? stagger : undefined}
         className="nq-container relative"
       >

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 export default function AuditionQ() {
   const animate = useMotionSafe();
@@ -24,9 +24,9 @@ export default function AuditionQ() {
 
       <div className="nq-container relative">
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-center"
         >

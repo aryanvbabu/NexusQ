@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 type Status = "live" | "vision" | "exploration";
 
@@ -85,13 +85,13 @@ export default function Ecosystem() {
     <section
       id="platforms"
       data-tour="section-platforms"
-      className="nq-section bg-nq-surface/40"
+      className="nq-section bg-nq-surface/20"
     >
       <div className="nq-container">
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="max-w-3xl mx-auto text-center"
         >
@@ -110,9 +110,9 @@ export default function Ecosystem() {
         </motion.div>
 
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >

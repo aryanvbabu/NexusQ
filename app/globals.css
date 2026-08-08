@@ -69,7 +69,7 @@
   --nq-border: rgba(0, 0, 0, 0.1);
   --nq-live: #059669;
   --nq-vision: #64748b;
-  --nq-section-y: 6rem;
+  --nq-section-y: 3.5rem;
   --nq-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --nq-duration: 0.65s;
 
@@ -193,7 +193,17 @@ body {
 
 .nq-section {
   padding-block: var(--nq-section-y);
-  padding-inline: 1.5rem;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --nq-section-y: 6rem;
+  }
+
+  .nq-section {
+    padding-inline: 1.5rem;
+  }
 }
 
 .nq-container {
@@ -358,7 +368,7 @@ body {
   background-repeat: no-repeat;
 }
 
-@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+@media (prefers-reduced-motion: no-preference) {
   .nq-aurora-a {
     animation: nq-aurora-a 28s ease-in-out infinite;
   }
@@ -367,6 +377,16 @@ body {
   }
   .nq-aurora-c {
     animation: nq-aurora-c 40s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 767px) {
+  .nq-aurora-a,
+  .nq-aurora-b,
+  .nq-aurora-c {
+    animation-duration: 40s;
+    filter: blur(40px);
+    opacity: 0.55;
   }
 }
 

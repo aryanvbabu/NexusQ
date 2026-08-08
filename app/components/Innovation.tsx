@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Brain, Layers, FlaskConical } from "lucide-react";
-import { fadeUp, stagger, useMotionSafe } from "@/lib/motion";
+import { fadeUp, inView, stagger, useMotionSafe } from "@/lib/motion";
 
 const themes = [
   {
@@ -26,12 +26,12 @@ export default function Innovation() {
   const animate = useMotionSafe();
 
   return (
-    <section id="future" className="nq-section bg-nq-surface/40">
+    <section id="innovation" className="nq-section bg-nq-surface/20">
       <div className="nq-container">
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="max-w-3xl"
         >
@@ -49,9 +49,9 @@ export default function Innovation() {
         </motion.div>
 
         <motion.div
-          initial={animate ? "hidden" : false}
+          initial={false}
           whileInView="show"
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={inView}
           variants={animate ? stagger : undefined}
           className="mt-14 grid gap-5 md:grid-cols-3"
         >

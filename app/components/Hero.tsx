@@ -1,34 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import AuroraBackground from "./AuroraBackground";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-[115svh] flex items-center overflow-visible px-6 pt-28 pb-56 text-foreground transition-colors duration-300"
-      style={{
-        background:
-          "linear-gradient(180deg, var(--background) 0%, color-mix(in srgb, var(--background) 88%, transparent) 100%)",
-      }}
+      className="relative flex items-start md:items-center overflow-visible px-5 pt-24 pb-12 text-foreground transition-colors duration-300 sm:px-6 md:min-h-[115svh] md:pt-28 md:pb-56"
     >
-      <div className="absolute inset-0 z-0">
-        <AuroraBackground />
-      </div>
-
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-10"
+        className="pointer-events-none absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(ellipse 90% 70% at 50% 20%, rgba(56,189,248,0.14), transparent 75%)",
+            "radial-gradient(ellipse 90% 70% at 50% 20%, rgba(56,189,248,0.12), transparent 75%)",
         }}
       />
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 opacity-[0.35] max-md:opacity-20"
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.28] max-md:opacity-15"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
@@ -38,7 +29,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-20 nq-container text-center pt-10">
+      <div className="relative z-20 nq-container text-center pt-2 md:pt-10">
         <p className="nq-eyebrow mb-6">NexusQ Global</p>
 
         <h1 className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
@@ -79,17 +70,8 @@ export default function Hero() {
         </div>
       </div>
 
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 z-10"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent 0%, var(--background) 100%)",
-        }}
-      />
-
       <div className="absolute -bottom-14 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
-        <div className="flex items-center gap-10 rounded-2xl border border-white/10 bg-black/80 px-10 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+        <div className="flex items-center gap-10 rounded-2xl border border-white/10 bg-black/70 px-10 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">1</p>
             <p className="mt-1 text-sm text-white/70">Live Product</p>

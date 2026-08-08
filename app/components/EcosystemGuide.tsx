@@ -54,7 +54,7 @@ export function EcosystemGuide() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95"
+        className="fixed bottom-5 right-4 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-3 py-2.5 text-xs font-medium text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 sm:bottom-6 sm:right-6 sm:px-4 sm:py-3 sm:text-sm"
       >
         <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
         Website Tour
