@@ -85,7 +85,7 @@ export default function Ecosystem() {
     <section
       id="platforms"
       data-tour="section-platforms"
-      className="nq-section bg-nq-surface/20"
+      className="nq-section"
     >
       <div className="nq-container">
         <motion.div
@@ -179,7 +179,7 @@ export default function Ecosystem() {
       }
     : undefined
 }
-                  className="group relative overflow-hidden nq-surface block h-full rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-7 transition-all duration-500 hover:border-cyan-400/60 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)] focus-visible:outline-none"
+                  className="group relative overflow-hidden nq-card nq-card-lg block h-full p-7 transition-all duration-500 hover:border-cyan-400/60 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)] focus-visible:outline-none"
                 >
                   {inner}
                 </motion.a>
@@ -199,7 +199,7 @@ export default function Ecosystem() {
                       }
                     : undefined
                 }
-                className="group relative overflow-hidden nq-surface h-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-7 transition-all duration-500 hover:border-cyan-400/30 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)]"
+                className="group relative overflow-hidden nq-card nq-card-lg h-full p-7 transition-all duration-500 hover:border-cyan-400/30 hover:shadow-[0_0_90px_rgba(34,211,238,0.35)]"
               >
                 {inner}
               </motion.article>

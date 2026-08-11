@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Acting Scene Background — Implementation Guide</title>
+<style>
+  @page { size: A4; margin: 14mm; }
+  body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; }
+  h1 { font-size: 20pt; margin: 0 0 8px; }
+  h2 { font-size: 14pt; margin: 22px 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-after: avoid; }
+  h3 { font-size: 12pt; margin: 14px 0 6px; }
+  p, li { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 14px; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 6px 8px; vertical-align: top; text-align: left; }
+  th { background: #f3f4f6; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f4f4f5; padding: 1px 4px; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 6px; font-size: 8pt; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+  .meta { color: #444; font-size: 10pt; margin-bottom: 18px; }
+  .box { border: 1px solid #ddd; padding: 10px 12px; margin: 10px 0; background: #fafafa; }
+  .arch { font-family: Consolas, monospace; white-space: pre; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; font-size: 9pt; }
+</style>
+</head>
+<body>
+<h1>Acting Scene Background — Implementation Guide</h1>
+<p class="meta"><strong>Purpose:</strong> Port the NexusQ cinematic acting-scene animation to another website (e.g. AuditionQ).<br/>
+<strong>Source:</strong> NexusQ branch <code>cinematic-background-test</code><br/>
+<strong>Date:</strong> 2026-08-11<br/>
+<strong>Status:</strong> Test-proven on NexusQ; ready to copy</p>
+
+<h2>1. What this animation is</h2>
+<p>A full-viewport animated SVG background with:</p>
+<ul>
+<li>An <strong>actor</strong> performing in front of the camera</li>
+<li>A <strong>cameraman</strong> wearing a <strong>director cap</strong>, operating a cinema camera</li>
+<li>Studio <strong>scenery</strong> (cyclorama, lights, director chair, boom mic, cases, clapperboard)</li>
+<li>Smooth Framer Motion loops</li>
+<li><strong>Light mode + dark mode</strong> support</li>
+<li>Mobile-reduced motion + <code>prefers-reduced-motion</code> support</li>
+</ul>
+<p>It sits <strong>behind</strong> all website content and does not block clicks.</p>
+
+<h2>2. Files you need to create</h2>
+<table>
+<thead><tr><th>Action</th><th>Path on target site</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>CREATE</strong></td><td><code>app/components/ActingSceneBackground.tsx</code></td><td>Copy full source from Section 9</td></tr>
+<tr><td><strong>MODIFY</strong></td><td>Homepage (e.g. <code>app/page.tsx</code>)</td><td>Mount background + wrap content (Section 5)</td></tr>
+<tr><td><strong>OPTIONAL</strong></td><td>Theme / CSS tokens</td><td>Retune veil if no <code>bg-nq-bg</code> (Section 6)</td></tr>
+</tbody>
+</table>
+<div class="box"><strong>Do NOT need:</strong> AuroraBackground.tsx, FilmSetBackground.tsx, public/film-background.jpg, or NexusQ card CSS fixes (unless the target has the same transparency bugs).</div>
+
+<h2>3. Dependencies</h2>
+<pre>npm install framer-motion</pre>
+<p>Also required: React 18+, Next.js App Router client components (<code>"use client"</code>), Tailwind recommended.</p>
+
+<h2>4. Architecture (must keep)</h2>
+<div class="arch">ActingSceneBackground
+  fixed · inset-0 · z-0 · pointer-events-none
+  full-bleed SVG (preserveAspectRatio=xMidYMid slice)
+        ▲
+Site content (relative z-10)
+  Navbar · Hero · Sections · Footer (stationary)</div>
+<ol>
+<li>Background: <code>pointer-events-none</code> + <code>fixed inset-0</code> + <code>z-0</code></li>
+<li>Content: <code>relative z-10</code></li>
+<li>Parent: <code>relative</code> + <code>overflow-x-hidden</code></li>
+<li>SVG fills the screen with <code>h-full w-full</code> + slice</li>
+</ol>
+
+<h2>5. Exact page wiring (what to change)</h2>
+<h3>Minimal pattern</h3>
+<pre>import ActingSceneBackground from "./components/ActingSceneBackground";
+// Keep your old background import commented — do not delete the file
+
+export default function Home() {
+  return (
+    &lt;main className="relative min-h-screen overflow-x-hidden"&gt;
+      {/* &lt;OldBackground /&gt; */}
+      &lt;ActingSceneBackground /&gt;
+      &lt;div className="relative z-10"&gt;
+        &lt;Navbar /&gt;
+        &lt;Hero /&gt;
+        {/* all existing sections unchanged */}
+      &lt;/div&gt;
+    &lt;/main&gt;
+  );
+}</pre>
+
+<h2>6. Theme / readability adaptations</h2>
+<p>If there is no <code>bg-nq-bg</code>, replace the veil near the bottom of the component:</p>
+<pre>&lt;div className="absolute inset-0 bg-nq-bg/30 dark:bg-nq-bg/38" /&gt;</pre>
+<p>With site tokens, for example:</p>
+<pre>&lt;div className="absolute inset-0 bg-background/30 dark:bg-background/40" /&gt;
+/* or */
+&lt;div className="absolute inset-0 bg-white/35 dark:bg-black/40" /&gt;</pre>
+<p>Use <strong>solid</strong> card backgrounds over this scene. Avoid Tailwind opacity on CSS-variable colors (e.g. <code>bg-surface/85</code>) — they often fail.</p>
+
+<h2>7. Implementation checklist</h2>
+<ol>
+<li>Create a <strong>test branch</strong> on the target repo</li>
+<li>Install <code>framer-motion</code> if needed</li>
+<li>Create <code>ActingSceneBackground.tsx</code> with Section 9 source</li>
+<li>Wire homepage (fixed BG + z-10 content)</li>
+<li>Comment out old background without deleting it</li>
+<li>Test desktop, mobile, light, dark</li>
+<li>Test reduced motion</li>
+<li>Tune veil for text contrast</li>
+<li>Confirm clicks work; no horizontal scroll</li>
+<li>Optional feature flag; keep one-line revert</li>
+</ol>
+
+<h2>8. Performance and safety</h2>
+<ul>
+<li>Transforms/opacity only (already done)</li>
+<li>Mobile uses smaller motion (<code>amp = 0.5</code>)</li>
+<li>Respects <code>prefers-reduced-motion</code></li>
+<li>Start on homepage only</li>
+<li>Do not rewrite to Canvas/WebGL for v1</li>
+</ul>
+
+<h2>9. Full source code — ActingSceneBackground.tsx</h2>
+<p>Copy this entire file to the target project. A standalone copy also lives at <code>docs/ActingSceneBackground.tsx</code>.</p>
+<pre>"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+/**
+ * TEST ONLY — cinematic acting-scene background.
+ * Does not replace AuroraBackground.tsx or FilmSetBackground.tsx.
+ *
+ * Scene: director-capped cameraman recording + actor performing.
+ * Theme-aware for light + dark mode.
+ */
+
+export default function ActingSceneBackground() {
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() =&gt; {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () =&gt; setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () =&gt; mq.removeEventListener("change", update);
+  }, []);
+
+  const ease = "easeInOut" as const;
+  const amp = isMobile ? 0.5 : 1;
+
+  return (
+    &lt;div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    &gt;
+      {/* Theme-aware studio base */}
+      &lt;div className="absolute inset-0 bg-gradient-to-b from-[#efe6d8] via-[#e4d5c0] to-[#cbb89a] dark:from-[#0b1018] dark:via-[#121a24] dark:to-[#0a0e14]" /&gt;
+
+      {/* Ambient lights */}
+      &lt;motion.div
+        className="absolute left-[-8%] top-[0%] h-[50%] w-[50%] rounded-full bg-amber-300/40 blur-3xl dark:bg-amber-400/18"
+        animate={
+          prefersReducedMotion
+            ? undefined
+            : { opacity: [0.5, 0.75, 0.5], x: [0, 16 * amp, 0] }
+        }
+        transition={{ duration: 11, repeat: Infinity, ease }}
+      /&gt;
+      &lt;motion.div
+        className="absolute right-[-6%] top-[15%] h-[48%] w-[42%] rounded-full bg-sky-300/30 blur-3xl dark:bg-cyan-400/14"
+        animate={
+          prefersReducedMotion
+            ? undefined
+            : { opacity: [0.35, 0.55, 0.35], x: [0, -12 * amp, 0] }
+        }
+        transition={{ duration: 13, repeat: Infinity, ease }}
+      /&gt;
+
+      {/* Full-viewport scene — cover entire screen (not a bottom box) */}
+      &lt;div className="absolute inset-0"&gt;
+        &lt;svg
+          viewBox="0 0 1280 680"
+          preserveAspectRatio="xMidYMid slice"
+          className="absolute inset-0 h-full w-full"
+        &gt;
+          &lt;defs&gt;
+            &lt;radialGradient id="spotWarm" cx="50%" cy="20%" r="70%"&gt;
+              &lt;stop offset="0%" stopColor="#ffd089" stopOpacity="0.45" /&gt;
+              &lt;stop offset="100%" stopColor="#ffd089" stopOpacity="0" /&gt;
+            &lt;/radialGradient&gt;
+            &lt;filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"&gt;
+              &lt;feDropShadow dx="0" dy="8" stdDeviation="10" floodOpacity="0.25" /&gt;
+            &lt;/filter&gt;
+          &lt;/defs&gt;
+
+          {/* ════════════ SCENERY (behind characters) ════════════ */}
+
+          {/* Back wall */}
+          &lt;rect
+            x="0"
+            y="0"
+            width="1280"
+            height="480"
+            className="fill-[#d5c4ae] dark:fill-[#1a2330]"
+          /&gt;
+
+          {/* Lighting grid / ceiling beams */}
+          &lt;g className="opacity-70 dark:opacity-50"&gt;
+            &lt;rect x="40" y="28" width="1200" height="10" rx="2" className="fill-[#6b7280] dark:fill-[#4b5563]" /&gt;
+            {[120, 280, 440, 600, 760, 920, 1080].map((x) =&gt; (
+              &lt;rect
+                key={x}
+                x={x}
+                y="38"
+                width="6"
+                height="55"
+                rx="1"
+                className="fill-[#78716c] dark:fill-[#57534e]"
+              /&gt;
+            ))}
+            {/* Hanging softbox left */}
+            &lt;rect x="150" y="70" width="90" height="55" rx="6" className="fill-[#f8fafc] dark:fill-[#e2e8f0]" /&gt;
+            &lt;rect x="155" y="75" width="80" height="45" rx="4" className="fill-[#fde68a] dark:fill-[#fbbf24]/70" /&gt;
+            {/* Hanging softbox right */}
+            &lt;rect x="1020" y="78" width="80" height="48" rx="6" className="fill-[#f8fafc] dark:fill-[#e2e8f0]" /&gt;
+            &lt;rect x="1025" y="83" width="70" height="38" rx="4" className="fill-[#bae6fd] dark:fill-[#38bdf8]/50" /&gt;
+          &lt;/g&gt;
+
+          {/* Cyclorama backdrop curve */}
+          &lt;path
+            d="M180 120 Q640 80 1100 120 L1120 470 Q640 520 160 470 Z"
+            className="fill-[#ead9c0] dark:fill-[#243040]"
+          /&gt;
+          &lt;ellipse cx="640" cy="455" rx="460" ry="40" fill="url(#spotWarm)" /&gt;
+
+          {/* Studio floor */}
+          &lt;path
+            d="M0 470 L1280 470 L1280 680 L0 680 Z"
+            className="fill-[#b59f82] dark:fill-[#141c26]"
+          /&gt;
+          &lt;path
+            d="M0 470 Q640 505 1280 470"
+            fill="none"
+            className="stroke-black/10 dark:stroke-white/10"
+            strokeWidth="2"
+          /&gt;
+
+          {/* Floor reflection wash */}
+          &lt;ellipse
+            cx="640"
+            cy="560"
+            rx="480"
+            ry="36"
+            className="fill-black/8 dark:fill-black/30"
+          /&gt;
+
+          {/* Left scenery — director chair + plant */}
+          &lt;g filter="url(#softShadow)"&gt;
+            {/* Plant pot */}
+            &lt;ellipse cx="95" cy="500" rx="28" ry="10" className="fill-black/15 dark:fill-black/35" /&gt;
+            &lt;path d="M78 470 L112 470 L106 500 L84 500 Z" className="fill-[#7c2d12] dark:fill-[#5c1a0a]" /&gt;
+            &lt;ellipse cx="95" cy="470" rx="20" ry="6" className="fill-[#9a3412]" /&gt;
+            &lt;path
+              d="M95 465 Q70 420 55 390 Q85 410 95 440 Q105 410 135 390 Q120 420 95 465"
+              className="fill-[#3f7d4e] dark:fill-[#2f6b3d]"
+            /&gt;
+            &lt;path
+              d="M95 460 Q88 430 75 405 Q100 425 95 455"
+              className="fill-[#4f9a62] dark:fill-[#3d8350]"
+            /&gt;
+
+            {/* Director chair */}
+            &lt;g transform="translate(130,390)"&gt;
+              &lt;path
+                d="M20 20 L20 120 M100 20 L100 120 M20 120 L5 155 M100 120 L115 155 M20 70 L100 70"
+                fill="none"
+                stroke="#b45309"
+                strokeWidth="7"
+                strokeLinecap="round"
+              /&gt;
+              &lt;rect x="24" y="28" width="72" height="36" rx="2" className="fill-[#1c1917] dark:fill-[#0c0a09]" /&gt;
+              &lt;rect x="24" y="74" width="72" height="28" rx="2" className="fill-[#1c1917] dark:fill-[#0c0a09]" /&gt;
+              &lt;text
+                x="60"
+                y="52"
+                textAnchor="middle"
+                className="fill-[#a8a29e]"
+                fontSize="11"
+                fontFamily="system-ui,sans-serif"
+                fontWeight="700"
+              &gt;
+                DIRECTOR
+              &lt;/text&gt;
+            &lt;/g&gt;
+          &lt;/g&gt;
+
+          {/* Right scenery — equipment cases */}
+          &lt;g filter="url(#softShadow)"&gt;
+            &lt;rect x="1085" y="470" width="95" height="55" rx="6" className="fill-[#1e293b] dark:fill-[#0f172a]" stroke="#64748b" strokeWidth="2" /&gt;
+            &lt;rect x="1095" y="485" width="30" height="8" rx="2" className="fill-[#94a3b8]" /&gt;
+            &lt;rect x="1120" y="445" width="85" height="45" rx="6" className="fill-[#334155] dark:fill-[#1e293b]" stroke="#64748b" strokeWidth="2" /&gt;
+            &lt;rect x="1130" y="458" width="28" height="7" rx="2" className="fill-[#94a3b8]" /&gt;
+          &lt;/g&gt;
+
+          {/* Boom mic overhang */}
+          &lt;g className="opacity-80"&gt;
+            &lt;path
+              d="M980 95 L720 210"
+              fill="none"
+              stroke="#64748b"
+              strokeWidth="5"
+              strokeLinecap="round"
+            /&gt;
+            &lt;ellipse cx="705" cy="218" rx="28" ry="14" className="fill-[#1e293b] dark:fill-[#0f172a]" /&gt;
+            &lt;rect x="692" y="212" width="26" height="12" rx="3" className="fill-[#334155]" /&gt;
+          &lt;/g&gt;
+
+          {/* Floor light stands */}
+          &lt;g&gt;
+            &lt;path d="M250 200 L250 500" stroke="#78716c" strokeWidth="5" /&gt;
+            &lt;path d="M230 500 L270 500" stroke="#78716c" strokeWidth="6" strokeLinecap="round" /&gt;
+            &lt;rect x="220" y="175" width="60" height="40" rx="4" className="fill-[#fef3c7] dark:fill-[#fbbf24]/60" /&gt;
+            &lt;path
+              d="M280 195 L360 280 L340 320 L250 230 Z"
+              className="fill-amber-200/35 dark:fill-amber-300/15"
+            /&gt;
+
+            &lt;path d="M1040 210 L1040 500" stroke="#78716c" strokeWidth="5" /&gt;
+            &lt;path d="M1020 500 L1060 500" stroke="#78716c" strokeWidth="6" strokeLinecap="round" /&gt;
+            &lt;rect x="1010" y="185" width="60" height="40" rx="4" className="fill-[#e0f2fe] dark:fill-[#38bdf8]/45" /&gt;
+          &lt;/g&gt;
+
+          {/* Clapperboard on floor */}
+          &lt;g transform="translate(300,505) rotate(-12)"&gt;
+            &lt;rect width="78" height="56" rx="3" className="fill-[#0a0a0a]" stroke="#e5e5e5" strokeWidth="2" /&gt;
+            &lt;rect width="78" height="16" className="fill-[#f5f5f5]" /&gt;
+            &lt;path d="M0 0 L14 16 M20 0 L34 16 M40 0 L54 16 M60 0 L74 16" stroke="#111" strokeWidth="5" /&gt;
+          &lt;/g&gt;
+
+          {/* ════════════ ACTOR (connected silhouette) ════════════ */}
+          &lt;motion.g
+            style={{ transformOrigin: "420px 540px", willChange: "transform" }}
+            animate={
+              prefersReducedMotion
+                ? undefined
+                : { y: [0, -5 * amp, 0], rotate: [0, -0.8 * amp, 0.6 * amp, 0] }
+            }
+            transition={{ duration: 5.2, repeat: Infinity, ease }}
+          &gt;
+            {/* Shadow */}
+            &lt;ellipse cx="420" cy="555" rx="48" ry="12" className="fill-black/20 dark:fill-black/45" /&gt;
+
+            {/* Shoes */}
+            &lt;ellipse cx="398" cy="545" rx="18" ry="8" className="fill-[#1c1917]" /&gt;
+            &lt;ellipse cx="442" cy="545" rx="18" ry="8" className="fill-[#1c1917]" /&gt;
+
+            {/* Legs — continuous from hips */}
+            &lt;path
+              d="M395 400
+                 C392 440 388 490 392 538
+                 L410 538
+                 C412 490 412 445 415 400
+                 Z"
+              className="fill-[#2a3548] dark:fill-[#1a2333]"
+            /&gt;
+            &lt;path
+              d="M425 400
+                 C428 445 430 490 430 538
+                 L448 538
+                 C450 490 448 445 445 400
+                 Z"
+              className="fill-[#334155] dark:fill-[#243044]"
+            /&gt;
+
+            {/* Torso + hips as one shape */}
+            &lt;path
+              d="M378 275
+                 C400 255 440 255 462 275
+                 L472 400
+                 C445 418 395 418 368 400
+                 Z"
+              className="fill-[#3b5f8a] dark:fill-[#4a74a8]"
+            /&gt;
+            {/* Lapel / shirt line */}
+            &lt;path
+              d="M412 278 L420 278 L424 395 L408 395 Z"
+              className="fill-[#d4b483]/55"
+            /&gt;
+            {/* Collar */}
+            &lt;path
+              d="M400 275 L420 292 L440 275 L435 285 L420 298 L405 285 Z"
+              className="fill-[#2f4d70] dark:fill-[#3d618c]"
+            /&gt;
+
+            {/* Neck connected to torso + head */}
+            &lt;rect x="408" y="248" width="24" height="32" rx="8" className="fill-[#e2b48f] dark:fill-[#d09a72]" /&gt;
+
+            {/* Head */}
+            &lt;circle cx="420" cy="225" r="36" className="fill-[#e8bc98] dark:fill-[#d4a07c]" /&gt;
+            {/* Hair connected over head */}
+            &lt;path
+              d="M386 220
+                 C390 185 420 172 454 190
+                 C458 210 448 218 442 222
+                 C430 200 410 198 386 220 Z"
+              className="fill-[#2a2118] dark:fill-[#1a1410]"
+            /&gt;
+            {/* Ears */}
+            &lt;ellipse cx="385" cy="228" rx="7" ry="10" className="fill-[#d9a882] dark:fill-[#c49268]" /&gt;
+            &lt;ellipse cx="455" cy="228" rx="7" ry="10" className="fill-[#d9a882] dark:fill-[#c49268]" /&gt;
+            {/* Face */}
+            &lt;circle cx="408" cy="226" r="3.2" className="fill-[#2c211c]" /&gt;
+            &lt;circle cx="432" cy="226" r="3.2" className="fill-[#2c211c]" /&gt;
+            &lt;path
+              d="M410 244 C420 252 430 244"
+              fill="none"
+              stroke="#9a6b52"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            /&gt;
+
+            {/* Left arm — attached at shoulder, one continuous limb */}
+            &lt;motion.g
+              style={{ transformOrigin: "378px 295px" }}
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { rotate: [0, -10 * amp, -4 * amp, 0] }
+              }
+              transition={{ duration: 4.6, repeat: Infinity, ease }}
+            &gt;
+              &lt;path
+                d="M378 290
+                   C350 310 330 350 322 390
+                   C318 402 328 408 336 400
+                   C348 365 360 330 380 305
+                   Z"
+                className="fill-[#334e72] dark:fill-[#3f638f]"
+              /&gt;
+              {/* Hand attached to arm end */}
+              &lt;ellipse cx="328" cy="402" rx="13" ry="11" className="fill-[#e2b48f] dark:fill-[#d09a72]" /&gt;
+            &lt;/motion.g&gt;
+
+            {/* Right arm — raised acting gesture, attached at shoulder */}
+            &lt;motion.g
+              style={{ transformOrigin: "462px 295px" }}
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { rotate: [0, 14 * amp, 6 * amp, 16 * amp, 0] }
+              }
+              transition={{ duration: 4.0, repeat: Infinity, ease }}
+            &gt;
+              &lt;path
+                d="M462 292
+                   C490 275 520 250 545 228
+                   C555 220 548 208 536 214
+                   C510 240 485 265 460 285
+                   Z"
+                className="fill-[#3b5f8a] dark:fill-[#4a74a8]"
+              /&gt;
+              &lt;ellipse cx="542" cy="218" rx="14" ry="12" className="fill-[#e2b48f] dark:fill-[#d09a72]" /&gt;
+            &lt;/motion.g&gt;
+          &lt;/motion.g&gt;
+
+          {/* ════════════ CAMERA + TRIPOD ════════════ */}
+          &lt;g filter="url(#softShadow)"&gt;
+            &lt;path
+              d="M820 360 L760 548 M820 360 L880 548 M820 360 L820 548"
+              fill="none"
+              stroke="#57534e"
+              strokeWidth="9"
+              strokeLinecap="round"
+            /&gt;
+            &lt;circle cx="760" cy="550" r="9" className="fill-[#292524]" /&gt;
+            &lt;circle cx="880" cy="550" r="9" className="fill-[#292524]" /&gt;
+            &lt;circle cx="820" cy="550" r="9" className="fill-[#292524]" /&gt;
+
+            &lt;motion.g
+              style={{ transformOrigin: "820px 330px" }}
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { rotate: [0, -1.2 * amp, 0.8 * amp, 0], y: [0, -2 * amp, 0] }
+              }
+              transition={{ duration: 7, repeat: Infinity, ease }}
+            &gt;
+              {/* Camera body */}
+              &lt;rect
+                x="760"
+                y="295"
+                width="120"
+                height="72"
+                rx="12"
+                className="fill-[#1c1917] dark:fill-[#0c0a09]"
+                stroke="#78716c"
+                strokeWidth="2"
+              /&gt;
+              {/* Lens — facing actor */}
+              &lt;circle
+                cx="752"
+                cy="330"
+                r="30"
+                className="fill-[#0f172a]"
+                stroke="#94a3b8"
+                strokeWidth="4"
+              /&gt;
+              &lt;circle cx="752" cy="330" r="16" className="fill-[#1e293b]" /&gt;
+              &lt;circle cx="752" cy="330" r="7" className="fill-[#38bdf8]/55" /&gt;
+              {/* Top handle */}
+              &lt;rect x="795" y="278" width="48" height="12" rx="4" className="fill-[#44403c]" /&gt;
+              {/* Side monitor */}
+              &lt;rect
+                x="860"
+                y="268"
+                width="52"
+                height="40"
+                rx="5"
+                className="fill-[#111827]"
+                stroke="#64748b"
+                strokeWidth="2"
+              /&gt;
+              &lt;rect x="866" y="274" width="40" height="28" rx="2" className="fill-[#0ea5e9]/45" /&gt;
+              &lt;motion.circle
+                cx="880"
+                cy="288"
+                r="4.5"
+                className="fill-red-500"
+                animate={
+                  prefersReducedMotion ? { opacity: 1 } : { opacity: [1, 0.15, 1] }
+                }
+                transition={{ duration: 1.15, repeat: Infinity, ease: "easeInOut" }}
+              /&gt;
+            &lt;/motion.g&gt;
+          &lt;/g&gt;
+
+          {/* ════════════ CAMERAMAN (connected, director look) ════════════ */}
+          &lt;motion.g
+            style={{ transformOrigin: "960px 545px", willChange: "transform" }}
+            animate={
+              prefersReducedMotion
+                ? undefined
+                : { y: [0, -3 * amp, 0], x: [0, -3 * amp, 2 * amp, 0] }
+            }
+            transition={{ duration: 6.2, repeat: Infinity, ease }}
+          &gt;
+            &lt;ellipse cx="960" cy="558" rx="42" ry="11" className="fill-black/20 dark:fill-black/45" /&gt;
+
+            {/* Shoes */}
+            &lt;ellipse cx="942" cy="548" rx="16" ry="7" className="fill-[#1c1917]" /&gt;
+            &lt;ellipse cx="978" cy="548" rx="16" ry="7" className="fill-[#1c1917]" /&gt;
+
+            {/* Legs continuous */}
+            &lt;path
+              d="M940 415
+                 C938 455 936 500 938 542
+                 L954 542
+                 C956 500 956 455 955 415
+                 Z"
+              className="fill-[#1f2937] dark:fill-[#111827]"
+            /&gt;
+            &lt;path
+              d="M965 415
+                 C966 455 968 500 968 542
+                 L984 542
+                 C986 500 984 455 980 415
+                 Z"
+              className="fill-[#273549] dark:fill-[#1a2436]"
+            /&gt;
+
+            {/* Torso / director jacket — one piece into hips */}
+            &lt;path
+              d="M922 295
+                 C945 272 975 272 998 295
+                 L1008 415
+                 C980 435 940 435 912 415
+                 Z"
+              className="fill-[#2c3e50] dark:fill-[#3a5168]"
+            /&gt;
+            {/* Jacket lapels */}
+            &lt;path
+              d="M948 300 L960 318 L972 300 L968 325 L960 340 L952 325 Z"
+              className="fill-[#1e2d3d] dark:fill-[#2a3f52]"
+            /&gt;
+            {/* Red director scarf — attached to collar */}
+            &lt;path
+              d="M952 308
+                 C958 308 968 310 970 320
+                 L968 365
+                 C960 370 952 365 950 340
+                 Z"
+              className="fill-[#b91c1c] dark:fill-[#dc2626]"
+            /&gt;
+
+            {/* Neck */}
+            &lt;rect x="948" y="268" width="24" height="30" rx="7" className="fill-[#d2a67a] dark:fill-[#c49268]" /&gt;
+
+            {/* Head + director cap (connected) */}
+            &lt;motion.g
+              style={{ transformOrigin: "960px 250px" }}
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { rotate: [0, -3.5 * amp, -1 * amp, -4 * amp, 0] }
+              }
+              transition={{ duration: 5, repeat: Infinity, ease }}
+            &gt;
+              &lt;circle cx="958" cy="245" r="33" className="fill-[#d9ad84] dark:fill-[#c99a70]" /&gt;
+              {/* Cap brim + crown as one unit on head */}
+              &lt;path
+                d="M918 235
+                   C925 205 958 195 998 215
+                   C1000 230 990 240 980 242
+                   L918 242
+                   Z"
+                className="fill-[#171717] dark:fill-[#0a0a0a]"
+              /&gt;
+              &lt;ellipse cx="958" cy="238" rx="44" ry="12" className="fill-[#262626] dark:fill-[#171717]" /&gt;
+              &lt;circle cx="958" cy="222" r="4" className="fill-[#ca8a04]" /&gt;
+              {/* Ear */}
+              &lt;ellipse cx="928" cy="248" rx="6" ry="9" className="fill-[#c99a70]" /&gt;
+              {/* Eye looking toward camera/actor */}
+              &lt;circle cx="945" cy="248" r="3" className="fill-[#1c1917]" /&gt;
+              &lt;path
+                d="M940 262 C948 268 956 262"
+                fill="none"
+                stroke="#8b5e45"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              /&gt;
+            &lt;/motion.g&gt;
+
+            {/* Arms attached to shoulders, reaching camera */}
+            &lt;motion.g
+              style={{ transformOrigin: "922px 315px" }}
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { rotate: [0, 4 * amp, -2 * amp, 0] }
+              }
+              transition={{ duration: 3.6, repeat: Infinity, ease }}
+            &gt;
+              &lt;path
+                d="M922 310
+                   C885 325 855 335 830 332
+                   C820 330 820 318 830 318
+                   C858 322 888 315 920 302
+                   Z"
+                className="fill-[#2c3e50] dark:fill-[#3a5168]"
+              /&gt;
+              &lt;ellipse cx="828" cy="325" rx="12" ry="10" className="fill-[#d2a67a] dark:fill-[#c49268]" /&gt;
+            &lt;/motion.g&gt;
+
+            &lt;path
+              d="M998 312
+                 C1020 340 1015 375 1000 400
+                 C992 408 982 400 988 390
+                 C998 365 1005 340 995 315
+                 Z"
+              className="fill-[#273549] dark:fill-[#31485c]"
+            /&gt;
+            &lt;ellipse cx="996" cy="402" rx="11" ry="9" className="fill-[#d2a67a] dark:fill-[#c49268]" /&gt;
+          &lt;/motion.g&gt;
+
+          {/* Warm spotlight wash over actor */}
+          &lt;motion.path
+            d="M220 70 L360 500 L500 500 Z"
+            className="fill-amber-200/25 dark:fill-amber-300/12"
+            animate={
+              prefersReducedMotion ? undefined : { opacity: [0.3, 0.55, 0.3] }
+            }
+            transition={{ duration: 8, repeat: Infinity, ease }}
+          /&gt;
+        &lt;/svg&gt;
+      &lt;/div&gt;
+
+      {/* Soft haze */}
+      {!prefersReducedMotion &amp;&amp; (
+        &lt;motion.div
+          className="absolute inset-0 bg-gradient-to-r from-amber-100/15 via-transparent to-sky-100/10 dark:from-amber-400/5 dark:to-cyan-400/5"
+          animate={{ opacity: [0.35, 0.6, 0.35], x: ["-2%", "2%", "-2%"] }}
+          transition={{ duration: isMobile ? 18 : 14, repeat: Infinity, ease }}
+        /&gt;
+      )}
+
+      {/* Readability veil */}
+      &lt;div className="absolute inset-0 bg-nq-bg/30 dark:bg-nq-bg/38" /&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+
+<h2>10. Quick copy commands</h2>
+<pre># PowerShell
+Copy-Item docs\ActingSceneBackground.tsx C:\path\to\other-site\app\components\ActingSceneBackground.tsx
+
+cd C:\path\to\other-site
+npm install framer-motion</pre>
+
+<h2>11. Rollback</h2>
+<ol>
+<li>Comment out <code>&lt;ActingSceneBackground /&gt;</code></li>
+<li>Re-enable the previous background</li>
+<li>Keep the new file until you decide permanently</li>
+</ol>
+
+<h2>12. Source of truth</h2>
+<ul>
+<li>NexusQ branch: <code>cinematic-background-test</code></li>
+<li>Component: <code>app/components/ActingSceneBackground.tsx</code></li>
+<li>Guide + copy: <code>docs/</code></li>
+<li>Do not merge to NexusQ <code>main</code> until approved</li>
+</ul>
+<p><em>Generated for porting the NexusQ acting-scene background test to another website.</em></p>
+</body>
+</html>

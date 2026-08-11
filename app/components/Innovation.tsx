@@ -26,7 +26,7 @@ export default function Innovation() {
   const animate = useMotionSafe();
 
   return (
-    <section id="innovation" className="nq-section bg-nq-surface/20">
+    <section id="innovation" className="nq-section">
       <div className="nq-container">
         <motion.div
           initial={false}
@@ -61,7 +61,7 @@ export default function Innovation() {
               <motion.article
                 key={theme.title}
                 variants={fadeUp}
-                className="nq-surface p-7"
+                className="nq-card p-7"
               >
                 <div className="rounded-xl bg-nq-accent-soft p-2.5 w-fit text-nq-accent">
                   <Icon className="h-5 w-5" aria-hidden />

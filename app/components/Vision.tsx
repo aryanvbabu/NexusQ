@@ -26,24 +26,13 @@ export default function Vision() {
       id="about"
       className="relative nq-section overflow-hidden"
     >
-      {/* Smooth Background Transition */}
+      {/* Soft accent only — no dark wash (kept the film plate even across sections) */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10"
+        className="pointer-events-none absolute inset-0 -z-10"
         style={{
-          background: `
-            linear-gradient(
-              to bottom,
-              rgba(8,20,32,0.08) 0%,
-              rgba(5,7,11,0.55) 40%,
-              rgba(5,7,11,0.72) 100%
-            ),
-            radial-gradient(
-              ellipse at top center,
-              rgba(56,189,248,0.06),
-              transparent 70%
-            )
-          `,
+          background:
+            "radial-gradient(ellipse at top center, rgba(56,189,248,0.07), transparent 70%)",
         }}
       />
 
@@ -108,7 +97,7 @@ export default function Vision() {
                     }
                   : undefined
               }
-              className="group relative overflow-hidden nq-surface rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-7 transition-all duration-500 hover:border-cyan-400/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.20)]"
+              className="group relative overflow-hidden nq-card nq-card-lg p-7 transition-all duration-500 hover:border-cyan-400/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.20)]"
             >
               {/* Glow */}
               <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">

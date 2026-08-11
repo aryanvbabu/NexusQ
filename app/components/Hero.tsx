@@ -71,20 +71,20 @@ export default function Hero() {
       </div>
 
       <div className="absolute -bottom-14 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
-        <div className="flex items-center gap-10 rounded-2xl border border-white/10 bg-black/70 px-10 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+        <div className="nq-card flex items-center gap-10 px-10 py-5">
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">1</p>
-            <p className="mt-1 text-sm text-white/70">Live Product</p>
+            <p className="mt-1 text-sm text-nq-muted">Live Product</p>
           </div>
-          <div className="h-10 w-px bg-white/10" />
+          <div className="h-10 w-px bg-nq-border" />
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">5</p>
-            <p className="mt-1 text-sm text-white/70">Vision Products</p>
+            <p className="mt-1 text-sm text-nq-muted">Vision Products</p>
           </div>
-          <div className="h-10 w-px bg-white/10" />
+          <div className="h-10 w-px bg-nq-border" />
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">∞</p>
-            <p className="mt-1 text-sm text-white/70">Future Possibilities</p>
+            <p className="mt-1 text-sm text-nq-muted">Future Possibilities</p>
           </div>
         </div>
       </div>

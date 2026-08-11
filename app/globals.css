@@ -241,6 +241,20 @@ body {
   border-radius: 1.25rem;
 }
 
+/* Solid cards that stay readable over cinematic / bright backgrounds.
+   Do NOT use Tailwind opacity modifiers on CSS-var colors (they often fail). */
+.nq-card {
+  background: var(--nq-surface-elevated);
+  border: 1px solid var(--nq-border);
+  border-radius: 1rem;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.nq-card-lg {
+  border-radius: 1.5rem;
+}
+
 .nq-btn {
   display: inline-flex;
   align-items: center;

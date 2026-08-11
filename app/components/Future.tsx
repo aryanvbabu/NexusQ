@@ -26,7 +26,7 @@ export default function Future() {
           only when it is ready.
         </p>
         <div className="mt-16 grid gap-6 md:grid-cols-3">
-          <div className="group rounded-3xl border border-nq-border bg-nq-surface/70 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
+          <div className="group nq-card nq-card-lg p-8 transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
             <div className="mb-5 text-5xl" aria-hidden>
               🤖
             </div>
@@ -37,7 +37,7 @@ export default function Future() {
             </p>
           </div>
 
-          <div className="group rounded-3xl border border-nq-border bg-nq-surface/70 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
+          <div className="group nq-card nq-card-lg p-8 transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
             <div className="mb-5 text-5xl" aria-hidden>
               🌍
             </div>
@@ -50,7 +50,7 @@ export default function Future() {
             </p>
           </div>
 
-          <div className="group rounded-3xl border border-nq-border bg-nq-surface/70 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
+          <div className="group nq-card nq-card-lg p-8 transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.18)]">
             <div className="mb-5 text-5xl" aria-hidden>
               🚀
             </div>

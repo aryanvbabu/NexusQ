@@ -1,8 +1,27 @@
 # NexusQ Global — Project State
 
-Last updated: 2026-08-04  
+Last updated: 2026-08-11  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
-Branch: `main`
+Branch: **`cinematic-background-test`** (local TEST only — not pushed; `main` untouched)  
+Latest commit on `main`: `65a618e` — Improve site-wide starfield, navbar UX, and light-mode readability
+
+---
+
+## Active test: cinematic background (2026-08-11)
+
+**Branch:** `cinematic-background-test` only. Do not merge/push unless Lead approves.
+
+| Item | Detail |
+|------|--------|
+| **Current test BG** | `ActingSceneBackground.tsx` — full-viewport SVG (`preserveAspectRatio="xMidYMid slice"`), connected characters + studio scenery, theme-aware |
+| Previous film plate | `FilmSetBackground.tsx` + `public/film-background.jpg` kept for comparison (not deleted; commented out in `page.tsx`) |
+| Homepage wiring | Aurora commented out for test only (file kept). `ActingSceneBackground` active |
+| Tone fix | Removed section dark washes; flat readability veil |
+| Card readability | Solid `.nq-card` utility for Trust / Vision / Ecosystem / Innovation / Future / Hero stats |
+| Content | Unchanged — sections stationary above background |
+| Porting guide | Desktop PDF: `Acting-Scene-Background-Implementation-Guide.pdf`; also `docs/` (PDF + HTML + `ActingSceneBackground.tsx` copy) |
+
+**Revert path:** switch back to `main`, or restore Aurora comments on this branch.
 
 ---
 
@@ -27,7 +46,8 @@ The site is a polished corporate/product marketing surface with login, partner i
 | Framework | Next.js **16.2.12** (App Router) |
 | Language | TypeScript |
 | UI | React **19.2.4**, Tailwind CSS **4**, shadcn/ui, Lucide |
-| Motion | Framer Motion (with `prefers-reduced-motion`) |
+| Motion | Framer Motion (section entrances) + **canvas starfield** (`AuroraBackground`) |
+| Theme | `next-themes` (dark default; light mode supported) |
 | Auth | NextAuth v4 (Credentials + JWT) |
 | Database | PostgreSQL via Prisma 7 (`@prisma/adapter-pg`) |
 | Email | Resend (server-side only) |
@@ -37,29 +57,50 @@ The site is a polished corporate/product marketing surface with login, partner i
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Homepage story (Hero → Vision → Ecosystem → AuditionQ → Future → Trust → Partner CTA → Footer) |
+| `/` | Homepage story + site-wide interactive starfield |
 | `/login` | Sign in / Sign up (toggle) |
 | `/partner` | Partner inquiry form |
 | `/privacy` | Privacy placeholder |
 | `/terms` | Terms placeholder |
-| `/settings` | Signed-in settings (Restart Tutorial + progress) |
 | `/api/auth/[...nextauth]` | NextAuth handler |
 | `/api/auth/signup` | Create user (bcrypt hash → Postgres) |
 | `/api/partner` | Validate form → Resend → inquiry inbox |
+
+**Removed (2026-08-08):** `/settings` — Settings page and navbar Settings control deleted on purpose.
+
+### Homepage composition (top → bottom)
+
+1. Fixed **Navbar** (active section highlight; mobile single bar + ☰ for extras)
+2. **Hero**
+3. **Vision** (`#about`)
+4. **Ecosystem** (`#platforms`)
+5. **AuditionQ** (`#auditionq`)
+6. **Innovation** (`#innovation`)
+7. **Trust** (`#trust`)
+8. **Future** (`#future`) — AI Agents, Global Expansion, Future Platforms
+9. **Partner CTA**
+10. **Footer**
+11. Floating **Website Tour** (`EcosystemGuide`)
+
+Background (**test branch**): `FilmSetBackground` — cinematic plate from `/film-background.jpg` with slow parallax.  
+Background (**main / production**): `AuroraBackground` with `fullPage` — fixed interactive starfield (still present in repo; temporarily disabled only on the test branch).
 
 ### Key source layout
 
 ```text
 app/
   page.tsx, layout.tsx, providers.tsx, globals.css
-  components/   # Navbar, Hero, …, onboarding/*
-  login/, partner/, privacy/, terms/, settings/
+  components/   # Navbar, Hero, AuroraBackground, FilmSetBackground (test), sections, onboarding/*
+  login/, partner/, privacy/, terms/
   api/auth/, api/partner/
+public/
+  film-background.jpg   # swap-only cinematic plate (test branch)
 lib/
   prisma.ts, generated/prisma/, motion.ts, utils.ts
 prisma/
   schema.prisma
 tutorials/      # homepage, auditionq, dashboard, profile configs + registry
+project-state.md
 ```
 
 ### Onboarding / guided tours
@@ -68,13 +109,14 @@ Reusable spotlight engine under `app/components/onboarding/` (Provider, Spotligh
 
 - Auto-starts incomplete section tours (homepage on `/`; AuditionQ after homepage is done when `#auditionq` is visited or the section enters view)
 - Persistence: `localStorage` keys `homepage_completed`, `auditionq_completed`, `dashboard_completed`, `profile_completed` (namespaced; per-email when signed in)
-- Controls: Next, Back, Skip Tour, Finish; ESC closes; arrow keys; focus trap; compact `i / n` step label (no long progress bars)
-- Restart: `/settings` → **Restart Tutorial** (signed-in)
+- Controls: Next, Back, Skip Tour, Finish; ESC closes; arrow keys; focus trap
+- **Guide me** button in the navbar still launches the homepage tour
+- Restart-via-Settings is **gone** (Settings removed); tours can still be driven by Guide me / completion storage
 - Dashboard/profile configs are ready for future routes; they do not auto-start until those pages exist
 
 ### Design system
 
-Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-accent`, live/vision badges, section utilities). Dark, product-focused look; cyan accent aligned with brand logo.
+Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-accent`, live/vision badges, section utilities). Dark-first product look with cyan accent; light mode uses the same tokens so section copy stays readable.
 
 ### Homepage honesty rules (enforced in UI)
 
@@ -84,7 +126,24 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 
 ---
 
-## 3. PostgreSQL setup
+## 3. Recent UI / UX updates (2026-08-08)
+
+| Change | Detail |
+|--------|--------|
+| Navbar visibility | Fixed Framer Motion / positioning issues that hid the bar on localhost and mobile |
+| Mobile nav | Single non-scrolling bar: logo + Home / Platforms / AuditionQ / Future / Partner + ☰; extras in menu |
+| Active section | Cyan highlight on the link for the section in view |
+| Spacing | Desktop link gaps restored; Sign In kept on desktop (and on larger phones when space allows) |
+| Settings removed | No Settings button; `/settings` page deleted |
+| Starfield | Denser moving stars; pointer/touch interaction; runs **site-wide** on homepage |
+| Motion safety | Section animations no longer start at `opacity: 0` (was blanking text on mobile) |
+| Light mode Future cards | AI Agents / Global Expansion / Future Platforms use `text-nq-text` / `text-nq-muted` |
+| Mobile layout | Tighter hero / section padding; less empty vertical space |
+| Turbopack root | `next.config.ts` pins app root when a parent lockfile exists |
+
+---
+
+## 4. PostgreSQL setup
 
 ### Connection
 
@@ -110,7 +169,7 @@ Set the same Neon `DATABASE_URL` in Vercel Environment Variables (and remove any
 
 ---
 
-## 4. Login / auth system
+## 5. Login / auth system
 
 ### Flow
 
@@ -130,9 +189,9 @@ Auth exists and works, but **v1 scope says not to expand it** (no OAuth, admin r
 
 ---
 
-## 5. Environment variables
+## 6. Environment variables
 
-Documented in `.env.example` (never commit real `.env.local`).
+Documented in `.env.example` (never commit real `.env` / `.env.local`).
 
 | Variable | Used for |
 |----------|----------|
@@ -155,7 +214,7 @@ Also set: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
 
 ---
 
-## 6. Deployment (GitHub + Vercel)
+## 7. Deployment (GitHub + Vercel)
 
 | Item | Value |
 |------|--------|
@@ -174,7 +233,7 @@ Secrets stay in Vercel Environment Variables / local `.env.local` (gitignored).
 
 ---
 
-## 7. Pending bugs / known limitations
+## 8. Pending bugs / known limitations
 
 | Issue | Status / notes |
 |-------|----------------|
@@ -184,25 +243,33 @@ Secrets stay in Vercel Environment Variables / local `.env.local` (gitignored).
 | Legal pages | Privacy/Terms are **placeholders**, not lawyer-reviewed |
 | Vision product copy | FurSure / RideQ / CaringMinds / Onakkodi use honest “vision” placeholders — replace when Lead supplies real descriptions |
 | Logo in navbar | Square stacked logo; wordmark can be hard to read at small sizes |
+| No automated tests | `package.json` has no test script; rely on lint / `tsc` / build / manual checks |
+| Onboarding auto-start | Can feel intrusive on first visit; Guide me remains for intentional restarts after Settings removal |
+| Starfield on secondary pages | Site-wide starfield is wired on homepage (`app/page.tsx`); `/login`, `/partner`, etc. do not use the same full-page background yet |
+| `mongoose` dependency | Still listed alongside Prisma/Postgres — confirm if still needed |
+
+**Resolved recently:** missing mobile navbar, side-scrolling overloaded mobile nav, Future card text invisible in light mode, Settings surface, hero-only background, opacity-0 section text on mobile.
 
 No known blocking local bugs for browse / signup / login / partner submit (under current Resend test recipient), once `DATABASE_URL` points at running Postgres.
 
 ---
 
-## 8. Pending features (backlog — out of current v1 expansion unless Lead approves)
+## 9. Pending features (backlog — out of current v1 expansion unless Lead approves)
 
 - Verify Resend domain → deliver partner mail to `admin@auditionq.com` from a branded from-address
-- Hosted Postgres for Vercel production auth
+- Confirm hosted Postgres env on Vercel production auth
 - Custom domain + Cloudflare (explicitly optional for v1)
 - Final legal Privacy / Terms copy
 - Real product screenshots / media for AuditionQ showcase
 - Accurate vision-product blurbs from Lead
+- Optional: extend interactive starfield to `/login` and `/partner`
+- Optional: lightweight test suite (Playwright smoke for nav + key sections)
 - Analytics (not approved in v1 freeze list without Lead)
-- Do **not** add without approval: CMS, blog, admin dashboards, product dashboards, i18n, OAuth expansion, fake vision “apps”
+- Do **not** add without approval: CMS, blog, admin dashboards, product dashboards, i18n, OAuth expansion, fake vision “apps”, Settings rebuild
 
 ---
 
-## 9. Next necessary steps
+## 10. Next necessary steps
 
 1. **Resend domain** — verify sending domain; set `RESEND_FROM_EMAIL` + `PARTNER_INQUIRY_TO=admin@auditionq.com`; redeploy; send a real partner test.
 2. **Confirm production `NEXTAUTH_URL`** stays the stable public alias (not a one-off deployment URL).
@@ -224,16 +291,20 @@ npm run build
 ### Quick production smoke checklist
 
 - [ ] `/` loads ecosystem LIVE/VISION labels
+- [ ] Navbar visible on mobile + desktop; active section highlight works
+- [ ] Starfield visible while scrolling homepage
+- [ ] Future cards readable in **light** and dark theme
 - [ ] `/partner` submit → email arrives
 - [ ] `/login` signup + sign-in
 - [ ] Footer Privacy / Terms
 - [ ] AuditionQ CTA → https://www.auditionq.com/
+- [ ] `/settings` is gone (expect 404)
 
 ---
 
-## 10. Definition of done (v1 vs remaining)
+## 11. Definition of done (v1 vs remaining)
 
-**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust sections, partner form + Resend path, privacy/terms, motion, responsive nav, SEO basics, GitHub→Vercel deploy, auth on **Neon PostgreSQL** (Prisma; schema pushed).
+**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust/innovation sections, partner form + Resend path, privacy/terms, motion + site-wide starfield, responsive nav with active sections, light-mode Future card readability, SEO basics, GitHub→Vercel deploy, auth on **Neon PostgreSQL** (Prisma; schema pushed), Settings removed.
 
 **Remaining for full “email to admin@auditionq.com” production path:** Resend domain verification + env cutover.  
 **Remaining for production auth:** add Neon `DATABASE_URL` in Vercel env (remove `MONGODB_URI`).  

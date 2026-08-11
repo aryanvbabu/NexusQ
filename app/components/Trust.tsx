@@ -54,10 +54,10 @@ export default function Trust() {
             <motion.article
               key={item.title}
               variants={fadeUp}
-              className="border border-nq-border rounded-2xl p-6 bg-transparent"
+              className="nq-card p-6"
             >
-              <h3 className="font-semibold tracking-tight">{item.title}</h3>
-              <p className="mt-3 text-sm text-nq-muted leading-relaxed">{item.body}</p>
+              <h3 className="font-semibold tracking-tight text-nq-text">{item.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-nq-muted">{item.body}</p>
             </motion.article>
           ))}
         </motion.div>
