@@ -70,7 +70,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute -bottom-14 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
+      <div className="absolute bottom-8 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
         <div className="nq-card flex items-center gap-10 px-10 py-5">
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">1</p>

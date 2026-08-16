@@ -1,27 +1,29 @@
 # NexusQ Global — Project State
 
-Last updated: 2026-08-11  
+Last updated: 2026-08-14  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
-Branch: **`cinematic-background-test`** (local TEST only — not pushed; `main` untouched)  
+Branch: **`acting-scene-background`** (TEST only — do not merge to `main`)  
 Latest commit on `main`: `65a618e` — Improve site-wide starfield, navbar UX, and light-mode readability
 
 ---
 
-## Active test: cinematic background (2026-08-11)
+## Active test: cinematic background (2026-08-14)
 
-**Branch:** `cinematic-background-test` only. Do not merge/push unless Lead approves.
+**Branch:** `acting-scene-background` only. Do not merge/push to `main` unless Lead approves.
+
+Current test: full-bleed photoreal scenes with entire figures visible. Slow camera pan plus moving film tapes and spinning reels behind copy. Buttons remain z-20.
 
 | Item | Detail |
 |------|--------|
-| **Current test BG** | `ActingSceneBackground.tsx` — full-viewport SVG (`preserveAspectRatio="xMidYMid slice"`), connected characters + studio scenery, theme-aware |
-| Previous film plate | `FilmSetBackground.tsx` + `public/film-background.jpg` kept for comparison (not deleted; commented out in `page.tsx`) |
-| Homepage wiring | Aurora commented out for test only (file kept). `ActingSceneBackground` active |
-| Tone fix | Removed section dark washes; flat readability veil |
-| Card readability | Solid `.nq-card` utility for Trust / Vision / Ecosystem / Innovation / Future / Hero stats |
-| Content | Unchanged — sections stationary above background |
-| Porting guide | Desktop PDF: `Acting-Scene-Background-Implementation-Guide.pdf`; also `docs/` (PDF + HTML + `ActingSceneBackground.tsx` copy) |
+| **Current test BG** | `CastingSceneBand.tsx` wrapping each section; photos in `public/scenes/casting-*.jpg` |
+| Scenes | Hero set walk · Vision casting office · Ecosystem crew floor · AuditionQ audition room · Innovation video village · Trust producers walking · Future equipment walk · Partner backlot |
+| Image swap | Replace the matching file in `public/scenes/` (keep filename) |
+| Deleted | `ActingSceneBackground.tsx` (cartoon) |
+| Untouched | `AuroraBackground.tsx` (production starfield; commented out in `page.tsx` for this test only) |
+| Still in repo | `FilmSetBackground.tsx`, `CinematicStudioBackground.tsx` (unused this pass) |
+| Content | Section copy/components unchanged — only wrapped |
 
-**Revert path:** switch back to `main`, or restore Aurora comments on this branch.
+**Revert path:** restore `<AuroraBackground fullPage />` in `app/page.tsx`; switch to `main` for production.
 
 ---
 

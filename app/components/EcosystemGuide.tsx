@@ -54,7 +54,7 @@ export function EcosystemGuide() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 right-4 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-3 py-2.5 text-xs font-medium text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 sm:bottom-6 sm:right-6 sm:px-4 sm:py-3 sm:text-sm"
+        className="fixed bottom-5 right-4 z-[80] flex items-center gap-2 rounded-full bg-blue-600 px-3 py-2.5 text-xs font-medium text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 sm:bottom-6 sm:right-6 sm:px-4 sm:py-3 sm:text-sm"
       >
         <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
         Website Tour
@@ -62,7 +62,7 @@ export function EcosystemGuide() {
 
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
