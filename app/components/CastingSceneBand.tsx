@@ -13,6 +13,8 @@ type CastingSceneBandProps = {
   image: string;
   pan?: Pan;
   children: ReactNode;
+  /** Eager-load this plate (hero only). Other bands stay lazy. */
+  priority?: boolean;
 };
 
 const FRAMES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
@@ -102,6 +104,7 @@ export default function CastingSceneBand({
   image,
   pan = "left",
   children,
+  priority = false,
 }: CastingSceneBandProps) {
   const plateClass =
     pan === "left"
@@ -114,13 +117,24 @@ export default function CastingSceneBand({
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
       >
-        <div className={plateClass} style={{ backgroundImage: `url(${image})` }} />
+        <div className={plateClass}>
+          {/* Native img so Chrome can lazy-load + fetchpriority. CSS backgrounds cannot. */}
+          <img
+            src={image}
+            alt=""
+            decoding="async"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "low"}
+            draggable={false}
+            className="absolute inset-0 h-full w-full object-cover object-[center_42%]"
+          />
+        </div>
 
         <div
           className="absolute inset-0 dark:hidden"
           style={{
             background:
-              "linear-gradient(180deg, rgba(248,250,252,0.72) 0%, rgba(248,250,252,0.42) 45%, rgba(248,250,252,0.55) 100%)",
+              "linear-gradient(180deg, rgba(248,250,252,0.90) 0%, rgba(248,250,252,0.84) 45%, rgba(248,250,252,0.88) 100%)",
           }}
         />
         <div

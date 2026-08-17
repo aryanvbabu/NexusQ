@@ -63,7 +63,7 @@
   --nq-surface: #ffffff;
   --nq-surface-elevated: #f1f5f9;
   --nq-text: #0f172a;
-  --nq-muted: #64748b;
+  --nq-muted: #334155;
   --nq-accent: #0284c7;
   --nq-accent-soft: rgba(2, 132, 199, 0.1);
   --nq-border: rgba(0, 0, 0, 0.1);
@@ -201,9 +201,7 @@ body {
 .nq-walk-plate {
   position: absolute;
   inset: -4%;
-  background-size: cover;
-  background-position: center 42%;
-  background-repeat: no-repeat;
+  background-color: #161310;
   will-change: transform;
 }
 
@@ -393,6 +391,29 @@ body {
   font-size: 1.125rem;
   line-height: 1.75;
   color: var(--nq-muted);
+}
+
+/* TEST ONLY — keep section copy readable over photoreal plates in light mode */
+html:not(.dark) .nq-heading {
+  color: #0f172a;
+  text-shadow: 0 1px 18px rgba(248, 250, 252, 0.92);
+}
+
+html:not(.dark) .nq-lede {
+  color: #1e293b;
+}
+
+html:not(.dark) .nq-eyebrow {
+  color: #0369a1;
+}
+
+html:not(.dark) #home h1 {
+  color: #0f172a;
+  text-shadow: 0 1px 18px rgba(248, 250, 252, 0.92);
+}
+
+html:not(.dark) #home p.text-nq-muted {
+  color: #1e293b;
 }
 
 .nq-surface {
@@ -591,5 +612,147 @@ body {
   }
   50% {
     translate: -1.25rem -1rem;
+  }
+}
+
+/* TEST ONLY — small backstage monitor with looping audition feed */
+.nq-backstage-bezel {
+  width: 210px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: #12100e;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+  color: #e8e4dc;
+}
+
+.nq-backstage-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.55rem 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.nq-backstage-rec {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+}
+
+.nq-backstage-live {
+  margin-left: auto;
+  color: #67e8f9;
+  letter-spacing: 0.12em;
+}
+
+.nq-backstage-screen {
+  position: relative;
+  height: 118px;
+  overflow: hidden;
+  background: #0c0a08;
+}
+
+.nq-backstage-screen img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+}
+
+.nq-backstage-caption {
+  padding: 0.35rem 0.55rem 0.45rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+}
+
+.nq-backstage-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nq-backstage-rec {
+    animation: nq-backstage-blink 1.8s ease-in-out infinite;
+  }
+
+  .nq-backstage-a {
+    animation: nq-backstage-ken 16s ease-in-out infinite,
+      nq-backstage-fade-a 12s ease-in-out infinite;
+  }
+
+  .nq-backstage-b {
+    animation: nq-backstage-ken-rev 16s ease-in-out infinite,
+      nq-backstage-fade-b 12s ease-in-out infinite;
+  }
+}
+
+@keyframes nq-backstage-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes nq-backstage-ken {
+  0%,
+  100% {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.14) translate3d(-3%, -2%, 0);
+  }
+}
+
+@keyframes nq-backstage-ken-rev {
+  0%,
+  100% {
+    transform: scale(1.12) translate3d(-2%, 0, 0);
+  }
+  50% {
+    transform: scale(1.04) translate3d(2%, -2%, 0);
+  }
+}
+
+@keyframes nq-backstage-fade-a {
+  0%,
+  42%,
+  100% {
+    opacity: 1;
+  }
+  50%,
+  92% {
+    opacity: 0;
+  }
+}
+
+@keyframes nq-backstage-fade-b {
+  0%,
+  42%,
+  100% {
+    opacity: 0;
+  }
+  50%,
+  92% {
+    opacity: 1;
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BackstageMonitor from "./BackstageMonitor";
 
 export default function Hero() {
   return (
@@ -63,11 +64,15 @@ export default function Hero() {
           <Link
             id="hero-explore-btn"
             href="#platforms"
-            className="nq-btn nq-btn-secondary border border-white/10 bg-white/5 hover:border-cyan-400/40 hover:bg-cyan-400/10 transition-all duration-500"
+            className="nq-btn nq-btn-secondary hover:border-cyan-400/40 transition-all duration-500"
           >
             Explore Platforms
           </Link>
         </div>
+      </div>
+
+      <div className="pointer-events-none relative z-30 mt-10 flex justify-center px-5 lg:absolute lg:bottom-10 lg:left-4 lg:mt-0">
+        <BackstageMonitor />
       </div>
 
       <div className="absolute bottom-8 left-1/2 z-30 hidden -translate-x-1/2 lg:block">

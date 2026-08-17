@@ -19,32 +19,40 @@ import CastingSceneBand from "./components/CastingSceneBand";
 export default function Home() {
   return (
     <main className="relative min-h-screen overflow-x-hidden text-nq-text">
+      {/* TEST ONLY — preload the first plate so Chrome paints it immediately */}
+      <link
+        rel="preload"
+        as="image"
+        href="/scenes/walk-hero.webp"
+        type="image/webp"
+        fetchPriority="high"
+      />
       {/* DISABLED ONLY for this test — AuroraBackground.tsx is untouched */}
       {/* <AuroraBackground fullPage /> */}
       <div className="relative z-10">
         <Navbar />
-        <CastingSceneBand image="/scenes/walk-hero.jpg" pan="left">
+        <CastingSceneBand image="/scenes/walk-hero.webp" pan="left" priority>
           <Hero />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-vision.jpg" pan="right">
+        <CastingSceneBand image="/scenes/walk-vision.webp" pan="right">
           <Vision />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-ecosystem.jpg" pan="left">
+        <CastingSceneBand image="/scenes/walk-ecosystem.webp" pan="left">
           <Ecosystem />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-audition.jpg" pan="right">
+        <CastingSceneBand image="/scenes/walk-audition.webp" pan="right">
           <AuditionQ />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-innovation.jpg" pan="left">
+        <CastingSceneBand image="/scenes/walk-innovation.webp" pan="left">
           <Innovation />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-trust.jpg" pan="right">
+        <CastingSceneBand image="/scenes/walk-trust.webp" pan="right">
           <Trust />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-future.jpg" pan="left">
+        <CastingSceneBand image="/scenes/walk-future.webp" pan="left">
           <Future />
         </CastingSceneBand>
-        <CastingSceneBand image="/scenes/walk-partner.jpg" pan="right">
+        <CastingSceneBand image="/scenes/walk-partner.webp" pan="right">
           <PartnerCTA />
         </CastingSceneBand>
         <Footer />
