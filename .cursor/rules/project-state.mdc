@@ -1,0 +1,27 @@
+---
+description: Keep project-state.md current after every change
+alwaysApply: true
+---
+
+# Keep project-state.md current
+
+`project-state.md` is the living handoff for NexusQ. After any code, design, ops, or content change in this repo, update it in the same turn before considering the work done.
+
+## When to update
+
+- New, changed, or removed UI, routes, components, or assets
+- Architecture / stack / env / deploy changes
+- Bugs fixed or newly known; backlog items added or dropped
+- Merges, branch status, or production deploy notes
+
+## What to keep accurate
+
+- Header: last updated date, branch, latest relevant commit
+- Active homepage background / current production look
+- Homepage composition and key source layout
+- Recent UI/UX updates (add a dated entry)
+- Pending bugs, backlog, next steps, definition of done
+
+Do not leave `project-state.md` describing a previous homepage, deleted routes, or stale next steps.
+
+Do not expand product scope in that file beyond what was actually shipped unless Lead approved it.

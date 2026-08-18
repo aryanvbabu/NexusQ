@@ -1,4 +1,3 @@
-import { EcosystemGuide } from "./components/EcosystemGuide";
 import Footer from "./components/Footer";
 import PartnerCTA from "./components/PartnerCTA";
 import AuditionQ from "./components/AuditionQ";
@@ -56,7 +55,6 @@ export default function Home() {
           <PartnerCTA />
         </CastingSceneBand>
         <Footer />
-        <EcosystemGuide />
       </div>
     </main>
   );
