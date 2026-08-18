@@ -15,6 +15,8 @@ type CastingSceneBandProps = {
   children: ReactNode;
   /** Eager-load this plate (hero only). Other bands stay lazy. */
   priority?: boolean;
+  /** Hero band uses dedicated film-strip lanes so copy/monitor do not cover the tape. */
+  filmLayout?: "default" | "hero";
 };
 
 const FRAMES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
@@ -105,14 +107,18 @@ export default function CastingSceneBand({
   pan = "left",
   children,
   priority = false,
+  filmLayout = "default",
 }: CastingSceneBandProps) {
   const plateClass =
     pan === "left"
       ? "nq-walk-plate nq-walk-plate-left"
       : "nq-walk-plate nq-walk-plate-right";
 
+  const bandClass =
+    filmLayout === "hero" ? "relative nq-scene-hero" : "relative";
+
   return (
-    <div className="relative">
+    <div className={bandClass}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -144,7 +150,13 @@ export default function CastingSceneBand({
               "linear-gradient(180deg, rgba(5,7,11,0.62) 0%, rgba(5,7,11,0.32) 45%, rgba(5,7,11,0.5) 100%)",
           }}
         />
+      </div>
 
+      {/* Film decor sits above the wash, below hero copy */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[8] overflow-hidden"
+      >
         <div className="nq-film-strip nq-film-strip-top">
           <FilmStripSvg />
           <FilmStripSvg />
@@ -158,7 +170,9 @@ export default function CastingSceneBand({
         <FilmReel className="nq-film-reel nq-film-reel-br" stroke="#e8c98a" />
       </div>
 
-      <div className="relative z-20">{children}</div>
+      <div className={filmLayout === "hero" ? "relative" : "relative z-20"}>
+        {children}
+      </div>
     </div>
   );
 }

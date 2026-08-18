@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import BackstageMonitor from "./BackstageMonitor";
+import CastingMonitor from "./CastingMonitor";
+import HeroSlideCards from "./HeroSlideCards";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex items-start md:items-center overflow-visible px-5 pt-24 pb-12 text-foreground transition-colors duration-300 sm:px-6 md:min-h-[115svh] md:pt-28 md:pb-56"
+      className="relative flex flex-col items-stretch overflow-visible px-5 pt-24 pb-12 text-foreground transition-colors duration-300 sm:px-6 md:min-h-[115svh] md:pt-28 md:pb-56"
     >
       <div
         aria-hidden
@@ -30,49 +31,67 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-20 nq-container text-center pt-2 md:pt-10">
-        <p className="nq-eyebrow mb-6">NexusQ Global</p>
+      {/* Open lane for top film tape — no z-index layer here */}
+      <div className="h-14 md:h-16 shrink-0" aria-hidden />
 
-        <h1 className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
-          Building a serious digital{" "}
-          <span
-            className="text-nq-accent"
-            style={{
-              textShadow:
-                "0 0 6px rgba(34,211,238,0.30), 0 0 14px rgba(34,211,238,0.18)",
-            }}
-          >
-            product ecosystem
-          </span>
-        </h1>
+      <div className="relative z-20 nq-container">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] lg:items-start lg:gap-x-10 xl:gap-x-14">
+          <div className="text-center lg:pr-2">
+            <p className="nq-eyebrow mb-6">NexusQ Global</p>
 
-        <p className="mt-7 mx-auto max-w-2xl text-lg md:text-xl text-nq-muted leading-relaxed">
-          NexusQ Global designs and ships digital platforms — starting with
-          AuditionQ, our live flagship product — while carefully exploring what
-          comes next.
-        </p>
+            <h1 className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl lg:max-w-3xl xl:max-w-4xl font-bold tracking-tight leading-[1.05]">
+              Building a serious digital{" "}
+              <span
+                className="text-nq-accent"
+                style={{
+                  textShadow:
+                    "0 0 6px rgba(34,211,238,0.30), 0 0 14px rgba(34,211,238,0.18)",
+                }}
+              >
+                product ecosystem
+              </span>
+            </h1>
 
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            id="hero-partner-btn"
-            href="/partner"
-            className="inline-flex items-center justify-center rounded-xl bg-[#22D3EE] px-6 py-3 text-base font-semibold text-slate-900 transition-all duration-300 hover:bg-[#18C5DF] hover:scale-105 hover:shadow-[0_0_25px_rgba(34,211,238,0.35)] active:scale-95"
-          >
-            Partner With Us
-          </Link>
+            <p className="mt-7 mx-auto max-w-2xl text-lg md:text-xl text-nq-muted leading-relaxed lg:max-w-xl xl:max-w-2xl">
+              NexusQ Global designs and ships digital platforms — starting with
+              AuditionQ, our live flagship product — while carefully exploring what
+              comes next.
+            </p>
 
-          <Link
-            id="hero-explore-btn"
-            href="#platforms"
-            className="nq-btn nq-btn-secondary hover:border-cyan-400/40 transition-all duration-500"
-          >
-            Explore Platforms
-          </Link>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                id="hero-partner-btn"
+                href="/partner"
+                className="inline-flex items-center justify-center rounded-xl bg-[#22D3EE] px-6 py-3 text-base font-semibold text-slate-900 transition-all duration-300 hover:bg-[#18C5DF] hover:scale-105 hover:shadow-[0_0_25px_rgba(34,211,238,0.35)] active:scale-95"
+              >
+                Partner With Us
+              </Link>
+
+              <Link
+                id="hero-explore-btn"
+                href="#platforms"
+                className="nq-btn nq-btn-secondary hover:border-cyan-400/40 transition-all duration-500"
+              >
+                Explore Platforms
+              </Link>
+            </div>
+          </div>
+
+          <div className="hidden lg:flex lg:justify-end lg:items-start lg:mt-10 xl:mt-12">
+            <CastingMonitor />
+          </div>
         </div>
       </div>
 
-      <div className="pointer-events-none relative z-30 mt-10 flex justify-center px-5 lg:absolute lg:bottom-10 lg:left-4 lg:mt-0">
-        <BackstageMonitor />
+      <div className="relative z-20 mt-8 flex justify-center lg:hidden">
+        <CastingMonitor />
+      </div>
+
+      {/* Open lane for bottom film tape */}
+      <div className="h-12 md:h-14 lg:h-16 shrink-0" aria-hidden />
+
+      <div className="relative z-20 nq-container pb-10 lg:pb-36">
+        <HeroSlideCards />
       </div>
 
       <div className="absolute bottom-8 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
