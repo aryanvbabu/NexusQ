@@ -673,6 +673,10 @@ html:not(.dark) #home p.text-nq-muted {
 /* TEST ONLY — casting-room monitor with looping audition feed */
 .nq-casting-monitor {
   flex-shrink: 0;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .nq-casting-monitor-bezel {
@@ -686,6 +690,24 @@ html:not(.dark) #home p.text-nq-muted {
     0 0 0 1px rgba(255, 255, 255, 0.06) inset,
     0 0 32px rgba(34, 211, 238, 0.08);
   color: #e8eef4;
+  transition:
+    border-color 0.25s var(--nq-ease),
+    box-shadow 0.25s var(--nq-ease),
+    transform 0.25s var(--nq-ease);
+}
+
+.nq-casting-monitor:hover .nq-casting-monitor-bezel,
+.nq-casting-monitor:focus-visible .nq-casting-monitor-bezel {
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow:
+    0 22px 56px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 0 42px rgba(34, 211, 238, 0.22);
+  transform: translateY(-2px);
+}
+
+.nq-casting-monitor:focus-visible {
+  outline: none;
 }
 
 @media (min-width: 1024px) {
@@ -766,6 +788,7 @@ html:not(.dark) #home p.text-nq-muted {
   height: 100%;
   object-fit: cover;
   object-position: center;
+  pointer-events: none;
 }
 
 .nq-casting-monitor-caption {

@@ -3,7 +3,7 @@
 Last updated: 2026-08-18  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
 Branch: **`main`**  
-Latest on `main`: Help chat replacing Website Tour
+Latest on `main`: Video box click-through, help chat, widget handoff PDF
 
 **Maintenance:** Update this file in the same turn as any code, design, ops, or content change. Keep dates, branch/commit, homepage composition, recent updates, pending bugs, backlog, and next steps accurate. Do not leave this file describing a previous look or deleted routes.
 
@@ -21,7 +21,7 @@ Current production homepage: full-bleed photoreal scene bands per section, with 
 | **Scene plates** | WebP in `public/scenes/walk-*.webp` (hero preloaded; others lazy-loaded via native `<img>`) |
 | **Original JPEGs** | Still in `public/scenes/casting-*.jpg` and `walk-*.jpg` for reference / swap source |
 | **Hero film tape** | `filmLayout="hero"` on hero band — dedicated top/bottom lanes so copy + monitor do not cover moving tape |
-| **Casting monitor** | `CastingMonitor.tsx` — looping BTS video (`public/videos/casting-bts.mp4` + CDN fallbacks); labels: Live audition / AuditionQ / Casting room feed |
+| **Casting monitor** | `CastingMonitor.tsx` — looping BTS video; click opens https://www.auditionq.com/ in a new tab |
 | **Hero slides** | `HeroSlideCards.tsx` — full-width auto-rotating cards (3s) about NexusQ, AuditionQ, ecosystem, future, partnership |
 | **Light mode** | Stronger scene overlays + `.nq-card` / heading contrast so copy stays readable over photos |
 | **Performance** | WebP plates (~55–200 KB vs ~2 MB JPEGs); hero `<link rel="preload">`; lazy + `fetchPriority` on bands |
@@ -120,6 +120,10 @@ lib/
 prisma/
   schema.prisma
 tutorials/      # homepage, auditionq, dashboard, profile configs + registry
+docs/
+  NexusQ-Widget-Handoff.pdf   # video box + help chat spec, full code, porting guide
+  NexusQ-Widget-Handoff.html  # print source
+  build-handoff-pdf.mjs       # regenerates HTML+PDF from current source files
 project-state.md
 ```
 
@@ -152,6 +156,21 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 ---
 
 ## 3. Recent UI / UX updates
+
+### 2026-08-18 — Widget handoff PDF
+
+| Change | Detail |
+|--------|--------|
+| PDF | `docs/NexusQ-Widget-Handoff.pdf` — video + **AI chatbox specs and limitations first**, then porting guide and full source |
+| Regenerator | `docs/build-handoff-pdf.mjs` (Chrome headless) + HTML source |
+
+### 2026-08-18 — Monitor click-through to AuditionQ
+
+| Change | Detail |
+|--------|--------|
+| Hero video box | Clicking `CastingMonitor` opens https://www.auditionq.com/ in a new tab |
+| Caption | Footer line reads “Visit AuditionQ”; hover/focus glow on the bezel |
+| Help chat | AuditionQ answer mentions the clickable homepage video box |
 
 ### 2026-08-18 — Site help chat (replaces Website Tour)
 
@@ -345,6 +364,7 @@ npm run build
 - [ ] Navbar visible on mobile + desktop; active section highlight works
 - [ ] Scene backgrounds visible while scrolling homepage (WebP plates load promptly in Chrome)
 - [ ] Hero casting monitor plays BTS video (or poster fallback)
+- [ ] Clicking the hero video box opens https://www.auditionq.com/
 - [ ] Hero slide cards auto-advance; readable in light and dark mode
 - [ ] Film tape animation visible in hero lanes (not covered by heading)
 - [ ] Future cards readable in **light** and dark theme

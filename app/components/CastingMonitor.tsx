@@ -19,6 +19,7 @@ const VIDEO_SOURCES = [
 ] as const;
 
 const POSTER = "/scenes/casting-audition.webp";
+const AUDITIONQ_URL = "https://www.auditionq.com/";
 
 export default function CastingMonitor() {
   const prefersReducedMotion = useReducedMotion();
@@ -29,7 +30,13 @@ export default function CastingMonitor() {
   const source = VIDEO_SOURCES[sourceIndex];
 
   return (
-    <aside aria-hidden className="nq-casting-monitor">
+    <a
+      href={AUDITIONQ_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="nq-casting-monitor"
+      aria-label="Visit AuditionQ"
+    >
       <div className="nq-casting-monitor-bezel">
         <div className="nq-casting-monitor-bar">
           <span className="nq-casting-monitor-rec" />
@@ -68,8 +75,8 @@ export default function CastingMonitor() {
           )}
           <div className="nq-casting-monitor-scan" />
         </div>
-        <div className="nq-casting-monitor-caption">Casting room feed</div>
+        <div className="nq-casting-monitor-caption">Visit AuditionQ</div>
       </div>
-    </aside>
+    </a>
   );
 }

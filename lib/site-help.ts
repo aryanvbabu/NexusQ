@@ -146,7 +146,7 @@ const knowledge: KnowledgeEntry[] = [
       "show me around",
     ],
     answer:
-      "Use the top navigation to jump around. Home introduces NexusQ. Platforms lists every product with Live, Vision, or Exploration labels. AuditionQ is the live flagship section, with a link to auditionq.com. Future covers AI agents, global expansion, and future platforms — none of those are launched. Partner opens a form for business inquiries. You can also Sign In from the navbar, switch light/dark theme, or tap Guide me in the menu for a short spotlight walkthrough of the homepage.",
+      "Use the top navigation to jump around. Home introduces NexusQ. Platforms lists every product with Live, Vision, or Exploration labels. AuditionQ is the live flagship section, with a link to auditionq.com. You can also click the homepage casting video box to open AuditionQ. Future covers AI agents, global expansion, and future platforms — none of those are launched. Partner opens a form for business inquiries. You can also Sign In from the navbar, switch light/dark theme, or tap Guide me in the menu for a short spotlight walkthrough of the homepage.",
     link: { label: "Explore platforms", href: "/#platforms" },
     suggestions: [
       "What is the difference between Live and Vision?",
@@ -167,9 +167,12 @@ const knowledge: KnowledgeEntry[] = [
       "audition",
       "interview",
       "auditionq.com",
+      "video box",
+      "monitor",
+      "casting room",
     ],
     answer:
-      "AuditionQ is NexusQ Global’s live flagship product — a modern, AI-powered platform that connects talent with opportunities through an audition and interview experience. It is available today at https://www.auditionq.com/. AuditionQ is a distinct product; NexusQ Global remains the parent company. It is the only platform on this site marked Live.",
+      "AuditionQ is NexusQ Global’s live flagship product — a modern, AI-powered platform that connects talent with opportunities through an audition and interview experience. It is available today at https://www.auditionq.com/. On the homepage, click the casting video box (Live audition / AuditionQ) to open that site. AuditionQ is a distinct product; NexusQ Global remains the parent company. It is the only platform on this site marked Live.",
     link: {
       label: "Visit AuditionQ",
       href: "https://www.auditionq.com/",
