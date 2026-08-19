@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { answerSiteHelp, type ChatTurn } from "@/lib/site-help";
+import {
+  composeSiteHelp,
+  retrieveSiteHelp,
+  type ChatTurn,
+} from "@/lib/site-help";
+import { paraphraseSiteHelp } from "@/lib/site-help-paraphrase";
 
 const MAX_MESSAGE = 500;
 const MAX_HISTORY = 8;
@@ -41,7 +46,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const reply = answerSiteHelp(message, asHistory(body.history));
+    const history = asHistory(body.history);
+    const retrieved = retrieveSiteHelp(message, history);
+    const composed = composeSiteHelp(retrieved, message, history);
+    const reply = await paraphraseSiteHelp(message, history, retrieved, composed);
     return NextResponse.json(reply);
   } catch {
     return NextResponse.json(

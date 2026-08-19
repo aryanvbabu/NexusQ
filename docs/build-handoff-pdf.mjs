@@ -29,6 +29,7 @@ const files = {
   chat: read("app/components/SiteHelpChat.tsx"),
   api: read("app/api/help-chat/route.ts"),
   knowledge: read("lib/site-help.ts"),
+  paraphrase: read("lib/site-help-paraphrase.ts"),
   layoutSnippet: `import SiteHelpChat from "./components/SiteHelpChat";
 
 export default function RootLayout({ children }) {
@@ -127,7 +128,7 @@ const html = `<!DOCTYPE html>
     <h1>Video box and site help chat</h1>
     <p>Video box and AI chatbox: specifications, limitations, future plan, porting guide, and full source.</p>
     <p class="meta">
-      Date: 18 August 2026<br />
+      Date: 19 August 2026 (chat composer update)<br />
       Source repo: github.com/aryanvbabu/NexusQ<br />
       Live parent site: NexusQ Global (Next.js 16, App Router)<br />
       Purpose: reuse the same widgets on another live website after approval (target: AuditionQ or any NexusQ product site)
@@ -219,7 +220,7 @@ const html = `<!DOCTYPE html>
   <h2 class="pagebreak">4. AI chatbox — specification</h2>
   <div class="ok">
     <strong>Product name on site:</strong> NexusQ Assistant (floating <strong>Help</strong> button).<br />
-    <strong>What it is:</strong> a website-only guide that answers questions from a fixed NexusQ knowledge file.<br />
+    <strong>What it is:</strong> a website-only guide that retrieves NexusQ facts and composes a reply shaped to the question (not one fixed paragraph per topic).<br />
     <strong>What it is not:</strong> not ChatGPT, not a general AI, not live human support, not an AuditionQ account helper.
   </div>
 
@@ -242,12 +243,13 @@ const html = `<!DOCTYPE html>
     <tr><th>Layer</th><th>File</th><th>Spec</th></tr>
     <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, panel, bubbles, suggestion chips, input, POST to API</td></tr>
     <tr><td>HTTP API</td><td><span class="path">app/api/help-chat/route.ts</span></td><td><code>POST /api/help-chat</code> only. No GET. No streaming.</td></tr>
-    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Keyword retrieval + canned answers. Synchronous. No network out.</td></tr>
+    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + question-shaped composer (yes/no, how, where, list). Skips facts already said.</td></tr>
+    <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only. Otherwise unused.</td></tr>
     <tr><td>Mount</td><td><span class="path">app/layout.tsx</span></td><td>One instance on every route (home, login, partner, privacy, terms)</td></tr>
   </table>
   <p>
-    Runtime: Next.js App Router on the same origin. <strong>No LLM provider, no API key, no extra environment variable, no database.</strong>
-    Cost per message is CPU only.
+    Runtime: Next.js App Router on the same origin. <strong>No database.</strong> Default path needs no API key (CPU compose only).
+    Optional Groq/OpenAI paraphrase still may not invent facts. Cost per message is CPU, plus provider cost only if a key is set.
   </p>
 
   <h3>4.3 UI / UX spec</h3>
@@ -294,18 +296,22 @@ const html = `<!DOCTYPE html>
     <tr><td>500</td><td>JSON parse / unexpected server error</td></tr>
   </table>
 
-  <h3>4.5 Matching engine spec</h3>
+  <h3>4.5 Fact composer spec (current — 19 August 2026)</h3>
+  <p>
+    Replies are <strong>not</strong> a single canned paragraph per topic. Knowledge is stored as short facts.
+    The engine picks facts that match the question type, then stitches a short answer.
+  </p>
   <ol>
-    <li>Trim the message. Empty → prompt the visitor to ask about the website.</li>
-    <li>Short greeting (hi/hello/hey…) → welcome copy, no retrieval.</li>
-    <li>Short thanks (thanks/ok/got it…) → acknowledgement, no retrieval.</li>
-    <li>If the line looks like a follow-up (“what about…”, “is it…”, ≤10 words), prepend the previous user + a slice of the previous assistant text.</li>
-    <li>Lowercase and strip punctuation.</li>
-    <li>If the text matches the off-topic list and has no site term → refuse.</li>
-    <li>Score every knowledge entry: +5 keyword hit, +8 multi-word keyword, +2 title-word hit.</li>
-    <li>Need score ≥5 normally, or ≥3 if a site term is present. Else: “I do not have that in the NexusQ site guide.”</li>
-    <li>If the 2nd-best score is close (≥72% of best and ≥5), concatenate both answers.</li>
-    <li>Return answer + optional link + suggestion chips from the winning entry.</li>
+    <li>Trim the message. Empty → prompt the visitor to ask about the website (varied wording).</li>
+    <li>Short greeting / thanks → varied welcome or acknowledgement, no retrieval.</li>
+    <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) are expanded with the previous turn.</li>
+    <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code>.</li>
+    <li>If off-topic and no site term → refuse (varied wording).</li>
+    <li>Score topics by keyword/title. Prefer intent-tagged facts (how-questions get how/where facts first).</li>
+    <li>Yes/no about AuditionQ live → a short “yes” lead + 1 supporting fact. Vision products → a short “no” lead.</li>
+    <li>How/where questions use at most 2 facts; broader what/list questions up to 3.</li>
+    <li>Facts already present in earlier assistant messages are skipped. If none remain: say that topic is covered and offer a follow-up.</li>
+    <li>Optional: <span class="path">paraphraseSiteHelp</span> may rewrite the composed reply from those facts if a Groq/OpenAI key is set (4s timeout, then fall back to compose).</li>
   </ol>
   <p>Site terms include product names (NexusQ, AuditionQ, FurSure, RideQ, CaringMinds, Onakkodi), partner/login/privacy/terms, and phrases such as “this website”. Off-topic examples: weather, recipes, jokes, homework, sports, crypto, “write python/javascript/code”.</p>
 
@@ -340,8 +346,8 @@ const html = `<!DOCTYPE html>
     <tr><td>PII</td><td>Chat does not ask for passwords. Messages are not written to the database. They exist in browser state and in the single POST body.</td></tr>
     <tr><td>Auth</td><td>Endpoint is public (same as the marketing site). No login required to ask.</td></tr>
     <tr><td>Rate limit</td><td>None in v1.</td></tr>
-    <tr><td>Secrets</td><td>None. Do not add provider keys unless Lead approves an LLM phase.</td></tr>
-    <tr><td>Latency</td><td>Local CPU match; typically tens of milliseconds after the route is warm.</td></tr>
+    <tr><td>Secrets</td><td>None required. Optional <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> only for paraphrase; still facts-only.</td></tr>
+    <tr><td>Latency</td><td>Local compose is typically tens of milliseconds. Optional LLM adds up to ~4s then falls back.</td></tr>
     <tr><td>Availability</td><td>If <code>/api/help-chat</code> fails, the UI shows an error bubble and keeps the panel open.</td></tr>
     <tr><td>Languages</td><td>English keywords and answers only.</td></tr>
   </table>
@@ -351,7 +357,9 @@ const html = `<!DOCTYPE html>
     <tr><th>Visitor says</th><th>Expected behaviour</th></tr>
     <tr><td>Hi / hello</td><td>Welcome + default chips</td></tr>
     <tr><td>What is NexusQ?</td><td>Parent-company answer + Home link</td></tr>
-    <tr><td>Is AuditionQ live?</td><td>Yes, flagship, link to auditionq.com; mention video-box click</td></tr>
+    <tr><td>Is AuditionQ live?</td><td>Short yes + live/flagship fact + link to auditionq.com (not the full AuditionQ essay)</td></tr>
+    <tr><td>How do I open AuditionQ?</td><td>URL and/or “click the homepage video box”</td></tr>
+    <tr><td>What products do you have?</td><td>Ecosystem list with Live/Vision/Exploration — not the company-overview paragraph</td></tr>
     <tr><td>Is FurSure / RideQ live?</td><td>No — vision, not launched</td></tr>
     <tr><td>How do I partner?</td><td>Partner form path + admin@auditionq.com</td></tr>
     <tr><td>How do I sign in?</td><td>/login on this site; not AuditionQ product login</td></tr>
@@ -367,12 +375,13 @@ const html = `<!DOCTYPE html>
   <h3>5.1 Intelligence and accuracy</h3>
   <table>
     <tr><th>Limitation</th><th>What that means</th></tr>
-    <tr><td>Not an LLM</td><td>It does not understand language. It scores keywords against a list. Unusual wording, heavy typos, or mixed questions can miss.</td></tr>
-    <tr><td>No reasoning</td><td>It cannot compare options, debug an account, or multi-step plan. It returns stored paragraphs.</td></tr>
+    <tr><td>Not a general LLM by default</td><td>Without a provider key it scores keywords and composes from facts. Unusual wording or typos can still miss.</td></tr>
+    <tr><td>No deep reasoning</td><td>It cannot debug an account or plan multi-step work. It only rearranges published site facts.</td></tr>
     <tr><td>No live browsing</td><td>It cannot read auditionq.com, email, or a CMS at request time.</td></tr>
     <tr><td>Knowledge can go stale</td><td>If marketing copy changes and <code>site-help.ts</code> is not updated, answers are wrong.</td></tr>
-    <tr><td>Two-topic merge</td><td>Close-scoring entries may be concatenated; the reply can feel long or slightly mixed.</td></tr>
-    <tr><td>Follow-up quality is basic</td><td>Only short “what about / is it / how…” lines are stitched onto the previous turn.</td></tr>
+    <tr><td>Two-topic merge</td><td>Close-scoring topics may both contribute facts; the reply can mix two subjects.</td></tr>
+    <tr><td>Follow-up quality is basic</td><td>Short “what about / tell me more” lines use prior context; long mixed questions may still miss.</td></tr>
+    <tr><td>Optional LLM can still fail closed</td><td>If Groq/OpenAI errors or times out, the composed fact answer is returned instead.</td></tr>
   </table>
   <h3>5.2 Scope and product honesty</h3>
   <table>
@@ -400,7 +409,7 @@ const html = `<!DOCTYPE html>
     <tr><th>Limitation</th><th>What that means</th></tr>
     <tr><td>No rate limiting</td><td>A bot can POST repeatedly. Fine for low marketing traffic; not hardened.</td></tr>
     <tr><td>No unanswered-question log</td><td>You cannot see which asks failed unless you add logging later (avoid storing PII).</td></tr>
-    <tr><td>Public endpoint</td><td>Anyone can call <code>/api/help-chat</code>. The engine only returns canned site text, so leakage risk is the knowledge file itself.</td></tr>
+    <tr><td>Public endpoint</td><td>Anyone can call <code>/api/help-chat</code>. Leakage risk is the knowledge file (and optional LLM traffic if a key is set).</td></tr>
     <tr><td>No automated tests</td><td>The repo has no test script; behaviour is checked manually.</td></tr>
   </table>
   <h3>5.5 What this chatbox will never do in v1</h3>
@@ -421,7 +430,7 @@ const html = `<!DOCTYPE html>
     <li><strong>Handoff chip</strong> into the partner/support form, prefilled from the last question.</li>
     <li><strong>Persist thread</strong> in <code>sessionStorage</code>.</li>
     <li><strong>Generate answers from live page copy</strong> so the file cannot drift.</li>
-    <li><strong>Optional grounded LLM</strong> — only if it may quote the knowledge file and must still refuse general topics. Not required to port v1.</li>
+    <li><strong>Optional grounded LLM</strong> — already supported if <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set; still facts-only. Not required for v1.</li>
     <li>Streaming UI, i18n, or an admin FAQ CMS only if Lead expands scope.</li>
   </ol>
 
@@ -483,7 +492,7 @@ const html = `<!DOCTYPE html>
   </div>
   <h3>8.1 Recommended port steps</h3>
   <ol>
-    <li>Copy <span class="path">SiteHelpChat.tsx</span>, <span class="path">route.ts</span>, <span class="path">site-help.ts</span>.</li>
+    <li>Copy <span class="path">SiteHelpChat.tsx</span>, <span class="path">route.ts</span>, <span class="path">site-help.ts</span>, <span class="path">site-help-paraphrase.ts</span>.</li>
     <li>Mount the chat once in the root layout so it appears on all pages.</li>
     <li>Rename “NexusQ Assistant” → “{Product} Assistant”.</li>
     <li>Replace every knowledge <code>answer</code> with that site’s published copy only.</li>
@@ -546,12 +555,14 @@ const html = `<!DOCTYPE html>
   <pre>${esc(files.chat)}</pre>
   <h3 class="pagebreak">B.2 <span class="path">app/api/help-chat/route.ts</span></h3>
   <pre>${esc(files.api)}</pre>
-  <h3>B.3 <span class="path">lib/site-help.ts</span> (knowledge + matcher)</h3>
+  <h3>B.3 <span class="path">lib/site-help.ts</span> (facts + composer)</h3>
   <pre>${esc(files.knowledge)}</pre>
+  <h3>B.4 <span class="path">lib/site-help-paraphrase.ts</span> (optional LLM)</h3>
+  <pre>${esc(files.paraphrase)}</pre>
 
   <p class="footer-note">
-    Generated from the NexusQ Global repo on 18 August 2026. Specs and limitations are in sections 3–6
-    (before the code appendices). Prefer git if the repo has moved on.
+    Generated from the NexusQ Global repo on 19 August 2026. Chatbox spec (sections 4–6) includes the fact-composer update.
+    Prefer git if the repo has moved on.
   </p>
 </body>
 </html>

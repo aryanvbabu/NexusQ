@@ -1,9 +1,9 @@
 # NexusQ Global — Project State
 
-Last updated: 2026-08-18  
+Last updated: 2026-08-19  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
 Branch: **`main`**  
-Latest on `main`: Video box click-through, help chat, widget handoff PDF
+Latest on `main`: Flexible help-chat fact composer
 
 **Maintenance:** Update this file in the same turn as any code, design, ops, or content change. Keep dates, branch/commit, homepage composition, recent updates, pending bugs, backlog, and next steps accurate. Do not leave this file describing a previous look or deleted routes.
 
@@ -116,7 +116,7 @@ public/
   film-background.jpg         # FilmSetBackground plate (unused)
   cinematic-studio.jpg        # CinematicStudioBackground plate (unused)
 lib/
-  prisma.ts, generated/prisma/, motion.ts, utils.ts, site-help.ts
+  prisma.ts, generated/prisma/, motion.ts, utils.ts, site-help.ts, site-help-paraphrase.ts
 prisma/
   schema.prisma
 tutorials/      # homepage, auditionq, dashboard, profile configs + registry
@@ -141,7 +141,7 @@ Reusable spotlight engine under `app/components/onboarding/` (Provider, Spotligh
 
 ### Site help chat
 
-Floating **Help** button (bottom-right, all routes via `app/layout.tsx`) opens `SiteHelpChat`. It answers only from the NexusQ website knowledge in `lib/site-help.ts` via `POST /api/help-chat` — company/products, live vs vision, AuditionQ, partner/sign-in/privacy. Off-topic / general questions are declined. No external LLM and no extra env vars. Navbar **Guide me** remains a separate spotlight tour.
+Floating **Help** button (bottom-right, all routes via `app/layout.tsx`) opens `SiteHelpChat`. `POST /api/help-chat` retrieves site facts from `lib/site-help.ts`, then composes a reply shaped to the question (yes/no, how, where, list) instead of always returning the same canned paragraph. Follow-ups skip facts already said. Optional paraphrase via `GROQ_API_KEY` or `OPENAI_API_KEY` (still facts-only). Off-topic / general questions are declined. Navbar **Guide me** remains a separate spotlight tour.
 
 ### Design system
 
@@ -163,6 +163,14 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 |--------|--------|
 | PDF | `docs/NexusQ-Widget-Handoff.pdf` — video + **AI chatbox specs and limitations first**, then porting guide and full source |
 | Regenerator | `docs/build-handoff-pdf.mjs` (Chrome headless) + HTML source |
+
+### 2026-08-19 — Flexible help-chat replies
+
+| Change | Detail |
+|--------|--------|
+| Fact composer | Help chat pulls relevant site facts and shapes the answer to the question (yes/no, how, where, list) instead of one fixed paragraph per topic |
+| Follow-ups | Already-said facts are skipped; repeating a topic gets a “covered / ask a follow-up” reply |
+| Optional LLM | If `GROQ_API_KEY` or `OPENAI_API_KEY` is set, replies can be paraphrased from those facts only |
 
 ### 2026-08-18 — Monitor click-through to AuditionQ
 
@@ -316,7 +324,7 @@ Secrets stay in Vercel Environment Variables / local `.env.local` (gitignored).
 | Scene plate swap | Replace matching file in `public/scenes/` (keep filename); prefer WebP for `walk-*.webp` bands in use |
 | Hero monitor video | Local clip at `public/videos/casting-bts.mp4`; CDN fallbacks if local missing |
 | `mongoose` dependency | Still listed alongside Prisma/Postgres — confirm if still needed |
-| Help chat | Site-knowledge matcher only (no LLM). Update `lib/site-help.ts` when public copy changes. Cannot answer facts not on the site. |
+| Help chat | Composes from site facts (question-shaped, not one fixed paragraph). Optional Groq/OpenAI paraphrase. Update `lib/site-help.ts` when public copy changes. |
 
 **Resolved recently:** missing mobile navbar, side-scrolling overloaded mobile nav, Future card text invisible in light mode, Settings surface, hero-only background, opacity-0 section text on mobile, slow Chrome scene load (WebP + lazy load), light-mode text over photoreal plates, film tape covered by hero copy/monitor, hero monitor overlapping heading.
 
