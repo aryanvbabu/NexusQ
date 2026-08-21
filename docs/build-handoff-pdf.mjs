@@ -23,8 +23,8 @@ const files = {
   monitorCss: (() => {
     const css = read("app/globals.css");
     const start = css.indexOf(".nq-casting-monitor {");
-    const end = css.indexOf("/* TEST ONLY — full-width hero insight strip */");
-    return css.slice(start, end).trim();
+    const end = css.indexOf("/* Full-width hero insight strip */");
+    return css.slice(start, end > start ? end : undefined).trim();
   })(),
   chat: read("app/components/SiteHelpChat.tsx"),
   api: read("app/api/help-chat/route.ts"),
@@ -128,7 +128,7 @@ const html = `<!DOCTYPE html>
     <h1>Video box and site help chat</h1>
     <p>Video box and AI chatbox: specifications, limitations, future plan, porting guide, and full source.</p>
     <p class="meta">
-      Date: 19 August 2026 (chat composer update)<br />
+      Date: 21 August 2026 (AuditionQ FAQ help + UI polish; film tape removed)<br />
       Source repo: github.com/aryanvbabu/NexusQ<br />
       Live parent site: NexusQ Global (Next.js 16, App Router)<br />
       Purpose: reuse the same widgets on another live website after approval (target: AuditionQ or any NexusQ product site)
@@ -149,15 +149,16 @@ const html = `<!DOCTYPE html>
     </tr>
     <tr>
       <td>Site help chat</td>
-      <td>Fixed bottom-right <strong>Help</strong> button → assistant panel</td>
-      <td>Answers only NexusQ website questions; refuses general knowledge</td>
+      <td>Fixed bottom-right <strong>Help</strong> button → polished assistant panel</td>
+      <td>Answers NexusQ website questions <em>and</em> AuditionQ product how-tos (accounts, Talent/Director, casting, teams); refuses general knowledge</td>
     </tr>
   </table>
   <p>
     The old floating <strong>Website Tour</strong> button (<code>EcosystemGuide</code>) was removed.
     Navbar <strong>Guide me</strong> (spotlight tour) is separate and was left in place.
+    Homepage floating film strips/reels were removed (21 August 2026); scene-band backgrounds remain.
   </p>
-  <p class="footer-note">Commit on main that introduced the chat: dc05e64. Video-box click-through is a later local change described in this document.</p>
+  <p class="footer-note">Chat introduced: dc05e64. Composer: 550f71b. 21 Aug 2026: AuditionQ FAQ knowledge, answer-first replies, polished chat UI, film tape removed.</p>
 
   <h2>2. Table of contents</h2>
   <ol class="toc">
@@ -203,6 +204,7 @@ const html = `<!DOCTYPE html>
     <li>No sound, controls, fullscreen, or captions.</li>
     <li>No in-page product iframe — destination is the live product URL.</li>
     <li>Not a general video player; it is a branded CTA with motion.</li>
+    <li>YouTube URL embed is <strong>not</strong> supported yet (deferred). Sources must be MP4 (local or direct CDN).</li>
   </ul>
   <h3>3.4 Video box limitations</h3>
   <table>
@@ -220,62 +222,62 @@ const html = `<!DOCTYPE html>
   <h2 class="pagebreak">4. AI chatbox — specification</h2>
   <div class="ok">
     <strong>Product name on site:</strong> NexusQ Assistant (floating <strong>Help</strong> button).<br />
-    <strong>What it is:</strong> a website-only guide that retrieves NexusQ facts and composes a reply shaped to the question (not one fixed paragraph per topic).<br />
-    <strong>What it is not:</strong> not ChatGPT, not a general AI, not live human support, not an AuditionQ account helper.
+    <strong>What it is:</strong> a fact composer for NexusQ Global <em>and</em> AuditionQ product how-tos. It answers the question directly first, then adds steps when useful — not one canned paragraph and not filler like “Sure, I’ll answer that.”<br />
+    <strong>What it is not:</strong> not ChatGPT, not a general AI, not live human support, not AuditionQ billing/legal advice.
   </div>
 
   <h3>4.1 Purpose and scope</h3>
   <p>
-    The assistant exists so a visitor can ask “what is this site?”, “is AuditionQ live?”, “how do I partner?”,
-    or “how do I sign in?” and get a short, honest answer plus a link. It must stay inside published NexusQ
-    website facts. If the question is about weather, homework, coding, news, or any other general topic, it must refuse.
+    The assistant helps visitors with this NexusQ site and with using AuditionQ (the live flagship):
+    create account, Talent ↔ Director switch, apply/publish casting calls, team collaboration, password reset, browsers.
+    It must stay inside published facts in <span class="path">lib/site-help.ts</span>. General topics (weather, homework, coding, news) are refused.
   </p>
   <table>
     <tr><th>In scope</th><th>Out of scope</th></tr>
     <tr>
-      <td>NexusQ Global identity; Live vs Vision vs Exploration; named products; how to use this website; partner form; email; sign-in/sign-up on this site; privacy/terms placeholders; theme; the clickable hero video box</td>
-      <td>General knowledge; writing code; AuditionQ in-app support (casting workflows, billing, password reset on auditionq.com); legal advice; invented metrics, launch dates, or office address</td>
+      <td>NexusQ identity; Live vs Vision; named products; partner form; NexusQ site sign-in; privacy/terms placeholders; theme; hero video box; AuditionQ product how-tos (accounts, roles, casting, teams, settings/support)</td>
+      <td>General knowledge; writing code; invented metrics/launch dates; lawyer-reviewed legal advice; YouTube embed in the video box (deferred)</td>
     </tr>
   </table>
 
   <h3>4.2 Architecture spec</h3>
   <table>
     <tr><th>Layer</th><th>File</th><th>Spec</th></tr>
-    <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, panel, bubbles, suggestion chips, input, POST to API</td></tr>
+    <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, gradient header, bubbles, chips, typing dots, input, POST to API</td></tr>
     <tr><td>HTTP API</td><td><span class="path">app/api/help-chat/route.ts</span></td><td><code>POST /api/help-chat</code> only. No GET. No streaming.</td></tr>
-    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + question-shaped composer (yes/no, how, where, list). Skips facts already said.</td></tr>
-    <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only. Otherwise unused.</td></tr>
+    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + simple compose: direct answer first, then numbered steps for how/why. Skips already-said facts. Switch-role topics use up to 4 facts.</td></tr>
+    <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only (answer-first, no filler). 4s timeout → fall back to compose.</td></tr>
     <tr><td>Mount</td><td><span class="path">app/layout.tsx</span></td><td>One instance on every route (home, login, partner, privacy, terms)</td></tr>
   </table>
   <p>
     Runtime: Next.js App Router on the same origin. <strong>No database.</strong> Default path needs no API key (CPU compose only).
-    Optional Groq/OpenAI paraphrase still may not invent facts. Cost per message is CPU, plus provider cost only if a key is set.
+    Optional Groq/OpenAI paraphrase still may not invent facts.
   </p>
 
   <h3>4.3 UI / UX spec</h3>
   <table>
     <tr><th>Element</th><th>Specification</th></tr>
-    <tr><td>Launcher</td><td>Fixed bottom-right (16–24px inset), z-index 80, cyan pill, pulse dot + “Help”</td></tr>
-    <tr><td>Open panel</td><td>Width min(22.5rem, viewport − 2rem); height min(32rem, 100dvh − 5.5rem). Launcher hides while open.</td></tr>
-    <tr><td>Header</td><td>Title “NexusQ Assistant”, subtitle “Website help only”, close (X)</td></tr>
-    <tr><td>Welcome</td><td>One assistant message explaining website-only scope + 4 suggestion chips</td></tr>
-    <tr><td>Default chips</td><td>What is NexusQ Global? · Is AuditionQ live? · How do I partner with you? · How do I sign in?</td></tr>
-    <tr><td>User bubble</td><td>Right-aligned, cyan</td></tr>
-    <tr><td>Assistant bubble</td><td>Left-aligned; optional link under the text; new suggestion chips after each reply</td></tr>
-    <tr><td>Loading</td><td>Shows “Thinking…” until the API returns</td></tr>
-    <tr><td>Input</td><td>Placeholder “Ask about this website…”; maxlength 500; Send disabled when empty or loading</td></tr>
+    <tr><td>Launcher</td><td>Fixed bottom-right, z-index 80, cyan gradient pill, pulse + “Help”</td></tr>
+    <tr><td>Open panel</td><td>Width min(24rem, viewport − 2rem); height min(34rem, 100dvh − 5.5rem). Soft cyan border glow. Launcher hides while open.</td></tr>
+    <tr><td>Header</td><td>Gradient wash; avatar + online status; title “NexusQ Assistant”; subtitle “Online · NexusQ &amp; AuditionQ”; close (X)</td></tr>
+    <tr><td>Welcome</td><td>One assistant message + 4 suggestion chips</td></tr>
+    <tr><td>Default chips</td><td>What is AuditionQ? · How do I create an AuditionQ account? · How do I switch Talent and Director? · How do I partner with you?</td></tr>
+    <tr><td>User bubble</td><td>Right-aligned, cyan gradient</td></tr>
+    <tr><td>Assistant bubble</td><td>Left-aligned; optional CTA link under the text (visit link last for how-tos); new chips after each reply</td></tr>
+    <tr><td>Loading</td><td>Three bouncing cyan dots</td></tr>
+    <tr><td>Input</td><td>Placeholder “Ask your question…”; maxlength 500; Send disabled when empty or loading</td></tr>
     <tr><td>Keyboard</td><td>Enter sends; Escape closes; focus moves to the input on open</td></tr>
     <tr><td>Theme</td><td>Uses <code>--nq-*</code> tokens so light and dark both stay readable</td></tr>
-    <tr><td>Motion</td><td>Framer Motion panel enter/exit (~180ms)</td></tr>
+    <tr><td>Motion</td><td>Framer Motion panel enter/exit; message fade-in</td></tr>
   </table>
 
   <h3>4.4 API spec</h3>
   <p><strong>Request</strong> — <code>POST /api/help-chat</code>, <code>Content-Type: application/json</code></p>
   <pre>${esc(`{
-  "message": "Is AuditionQ live?",
+  "message": "How do I switch Talent and Director?",
   "history": [
-    { "role": "user", "content": "What is NexusQ?" },
-    { "role": "assistant", "content": "NexusQ Global is a parent company..." }
+    { "role": "user", "content": "What is AuditionQ?" },
+    { "role": "assistant", "content": "AuditionQ is NexusQ Global's live flagship..." }
   ]
 }`)}</pre>
   <table>
@@ -285,9 +287,9 @@ const html = `<!DOCTYPE html>
   </table>
   <p><strong>Success (200)</strong></p>
   <pre>${esc(`{
-  "answer": "AuditionQ is NexusQ Global's live flagship product...",
-  "link": { "label": "Visit AuditionQ", "href": "https://www.auditionq.com/", "external": true },
-  "suggestions": ["Are any other products live?", "How do I partner with NexusQ?"]
+  "answer": "On AuditionQ, Talent and Director are two modes...\\n\\n1. To switch from Talent to Director...\\n2. To switch from Director to Talent...",
+  "link": { "label": "Continue on AuditionQ", "href": "https://www.auditionq.com/", "external": true },
+  "suggestions": ["Can one account be both Talent and Director?", "How do I apply to a casting call?"]
 }`)}</pre>
   <p><strong>Errors</strong></p>
   <table>
@@ -296,38 +298,43 @@ const html = `<!DOCTYPE html>
     <tr><td>500</td><td>JSON parse / unexpected server error</td></tr>
   </table>
 
-  <h3>4.5 Fact composer spec (current — 19 August 2026)</h3>
+  <h3>4.5 Fact composer spec (current — 21 August 2026)</h3>
   <p>
-    Replies are <strong>not</strong> a single canned paragraph per topic. Knowledge is stored as short facts.
-    The engine picks facts that match the question type, then stitches a short answer.
+    Replies are <strong>not</strong> a single canned paragraph. Knowledge is short facts.
+    The engine picks facts for the question, then formats a <strong>direct answer first</strong>, then steps when useful — with no filler openers.
   </p>
   <ol>
-    <li>Trim the message. Empty → prompt the visitor to ask about the website (varied wording).</li>
-    <li>Short greeting / thanks → varied welcome or acknowledgement, no retrieval.</li>
-    <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) are expanded with the previous turn.</li>
-    <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code>.</li>
-    <li>If off-topic and no site term → refuse (varied wording).</li>
-    <li>Score topics by keyword/title. Prefer intent-tagged facts (how-questions get how/where facts first).</li>
-    <li>Yes/no about AuditionQ live → a short “yes” lead + 1 supporting fact. Vision products → a short “no” lead.</li>
-    <li>How/where questions use at most 2 facts; broader what/list questions up to 3.</li>
-    <li>Facts already present in earlier assistant messages are skipped. If none remain: say that topic is covered and offer a follow-up.</li>
-    <li>Optional: <span class="path">paraphraseSiteHelp</span> may rewrite the composed reply from those facts if a Groq/OpenAI key is set (4s timeout, then fall back to compose).</li>
+    <li>Trim the message. Empty → ask the visitor what they want to know (varied wording).</li>
+    <li>Short greeting / thanks → welcome or acknowledgement, no retrieval.</li>
+    <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) expand with the previous turn.</li>
+    <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code> (password reset forces <code>how</code>).</li>
+    <li>If off-topic and no site/AuditionQ term → refuse.</li>
+    <li>Score topics by normalized keywords/title. Prefer intent-tagged facts. Stick to the best topic (do not mix unrelated second hits).</li>
+    <li>Yes/no about AuditionQ live → short “yes” lead + supporting fact. Vision products → short “no” lead.</li>
+    <li>How/why: first fact = answer; remaining facts = numbered steps. Switch-role questions allow up to 4 facts and end with a soft “open AuditionQ” nudge; the CTA link is last.</li>
+    <li>Password-reset questions return only the reset fact (not create-account padding).</li>
+    <li>Facts already in earlier assistant messages are skipped. If none remain: say that topic is covered.</li>
+    <li>Optional paraphrase may rewrite from those facts only (answer-first, no filler), 4s timeout, then fall back to compose.</li>
   </ol>
-  <p>Site terms include product names (NexusQ, AuditionQ, FurSure, RideQ, CaringMinds, Onakkodi), partner/login/privacy/terms, and phrases such as “this website”. Off-topic examples: weather, recipes, jokes, homework, sports, crypto, “write python/javascript/code”.</p>
+  <p>Site terms include NexusQ products, partner/login/privacy, and AuditionQ product terms (casting, talent, director, shortlist, OTP, team invite, etc.).</p>
 
   <h3>4.6 Knowledge coverage spec (current)</h3>
   <table>
     <tr><th>Topic id</th><th>Visitor can ask about</th></tr>
     <tr><td>what-is-nexusq</td><td>Who NexusQ is / what this website is</td></tr>
     <tr><td>how-to-use-site</td><td>Nav, sections, Guide me, clicking the video box</td></tr>
-    <tr><td>auditionq</td><td>Live flagship, auditionq.com, monitor click</td></tr>
-    <tr><td>ecosystem</td><td>Named platforms and their status</td></tr>
-    <tr><td>live-vs-vision</td><td>Meaning of Live / Vision / Exploration</td></tr>
-    <tr><td>fursure, rideq, caringminds, onakkodi, future-ai</td><td>Each vision/exploration product — not launched</td></tr>
+    <tr><td>auditionq</td><td>Live flagship overview, auditionq.com, monitor click</td></tr>
+    <tr><td>auditionq-account</td><td>Get Started, Talent/Director signup, OTP, forgot password, sign-in role choice</td></tr>
+    <tr><td>auditionq-switch-roles</td><td>Talent ↔ Director switch both ways; add second profile; what each mode is for</td></tr>
+    <tr><td>auditionq-talent</td><td>Complete profile, apply, photo upload, private team reviews</td></tr>
+    <tr><td>auditionq-director</td><td>Publish casting calls, drafts/KYC, review applicants</td></tr>
+    <tr><td>auditionq-team</td><td>Collaborators, roles, invites/links, Shared with me, Shortlist Reviewer limits</td></tr>
+    <tr><td>auditionq-settings-support</td><td>Email/phone, deactivate, browsers, troubleshooting</td></tr>
+    <tr><td>ecosystem / live-vs-vision</td><td>Named platforms and Live / Vision / Exploration</td></tr>
+    <tr><td>fursure, rideq, caringminds, onakkodi, future-ai</td><td>Vision/exploration — not launched</td></tr>
     <tr><td>partner / email</td><td>Partner form and admin@auditionq.com</td></tr>
-    <tr><td>login</td><td>This site’s sign-in/up (not AuditionQ product login); no Settings page</td></tr>
-    <tr><td>privacy / terms</td><td>That those pages are placeholders</td></tr>
-    <tr><td>trust / theme / vision-company</td><td>Honesty rules, light/dark, why the company exists</td></tr>
+    <tr><td>login</td><td>NexusQ site account only — not AuditionQ product login</td></tr>
+    <tr><td>privacy / terms / trust / theme / vision-company</td><td>Placeholders, honesty, light/dark, mission</td></tr>
   </table>
 
   <h3>4.7 Honesty / safety spec</h3>
@@ -361,11 +368,13 @@ const html = `<!DOCTYPE html>
     <tr><td>How do I open AuditionQ?</td><td>URL and/or “click the homepage video box”</td></tr>
     <tr><td>What products do you have?</td><td>Ecosystem list with Live/Vision/Exploration — not the company-overview paragraph</td></tr>
     <tr><td>Is FurSure / RideQ live?</td><td>No — vision, not launched</td></tr>
+    <tr><td>How do I switch Talent and Director?</td><td>Explain both directions + add second profile; AuditionQ link last</td></tr>
+    <tr><td>How do I create an AuditionQ account?</td><td>Get Started → Talent/Director → OTP → onboarding</td></tr>
     <tr><td>How do I partner?</td><td>Partner form path + admin@auditionq.com</td></tr>
-    <tr><td>How do I sign in?</td><td>/login on this site; not AuditionQ product login</td></tr>
-    <tr><td>What’s the weather? / write my homework</td><td>Refuse; stay website-only</td></tr>
+    <tr><td>How do I sign in? (this NexusQ site)</td><td>/login on this site; not AuditionQ product login</td></tr>
+    <tr><td>What’s the weather? / write my homework</td><td>Refuse; stay NexusQ/AuditionQ only</td></tr>
     <tr><td>Thanks</td><td>Short acknowledgement</td></tr>
-    <tr><td>Unrecognised site-ish question</td><td>Fallback: try NexusQ / AuditionQ / partner / sign-in</td></tr>
+    <tr><td>Unrecognised site-ish question</td><td>Fallback: try AuditionQ accounts / roles / partner / sign-in</td></tr>
   </table>
 
   <h2 class="pagebreak">5. AI chatbox — limitations</h2>
@@ -379,15 +388,16 @@ const html = `<!DOCTYPE html>
     <tr><td>No deep reasoning</td><td>It cannot debug an account or plan multi-step work. It only rearranges published site facts.</td></tr>
     <tr><td>No live browsing</td><td>It cannot read auditionq.com, email, or a CMS at request time.</td></tr>
     <tr><td>Knowledge can go stale</td><td>If marketing copy changes and <code>site-help.ts</code> is not updated, answers are wrong.</td></tr>
-    <tr><td>Two-topic merge</td><td>Close-scoring topics may both contribute facts; the reply can mix two subjects.</td></tr>
+    <tr><td>Two-topic merge</td><td>Composer prefers the best-matching topic only so unrelated subjects do not pad the reply.</td></tr>
     <tr><td>Follow-up quality is basic</td><td>Short “what about / tell me more” lines use prior context; long mixed questions may still miss.</td></tr>
     <tr><td>Optional LLM can still fail closed</td><td>If Groq/OpenAI errors or times out, the composed fact answer is returned instead.</td></tr>
+    <tr><td>AuditionQ FAQ can drift</td><td>Product how-tos were ported from AuditionQ FAQ. If AuditionQ UI changes, update <code>site-help.ts</code>.</td></tr>
   </table>
   <h3>5.2 Scope and product honesty</h3>
   <table>
     <tr><th>Limitation</th><th>What that means</th></tr>
-    <tr><td>Website facts only</td><td>Cannot help with AuditionQ casting tools, billing, or password reset inside the live product.</td></tr>
-    <tr><td>No human agent</td><td>No live chat queue. The panel can only point at /partner or email.</td></tr>
+    <tr><td>Published facts only</td><td>Can explain AuditionQ how-tos stored in the knowledge file, but cannot see a live account, casting tools, or billing.</td></tr>
+    <tr><td>No human agent</td><td>No live chat queue. The panel can only point at /partner, email, or Continue on AuditionQ.</td></tr>
     <tr><td>Off-topic list is finite</td><td>Some general questions may still get a weak site match instead of a clean refuse.</td></tr>
     <tr><td>Must not invent</td><td>Will not (and must not) create metrics, launch dates, prices, or an office address.</td></tr>
     <tr><td>Legal copy is placeholder</td><td>Privacy/terms answers say the pages are not lawyer-reviewed.</td></tr>
@@ -400,7 +410,7 @@ const html = `<!DOCTYPE html>
     <tr><td>8-turn history cap</td><td>Older context is dropped on the server.</td></tr>
     <tr><td>Thread not persisted</td><td>Reload or a new device starts from the welcome message.</td></tr>
     <tr><td>No voice / no attachments / no markdown rendering beyond line breaks</td><td>Text only.</td></tr>
-    <tr><td>No streaming tokens</td><td>The visitor waits for the full answer (“Thinking…”).</td></tr>
+    <tr><td>No streaming tokens</td><td>The visitor waits for the full answer (typing dots).</td></tr>
     <tr><td>Mobile overlap</td><td>The FAB can sit on top of other sticky UI on a different site unless z-index and offsets are retuned.</td></tr>
     <tr><td>Tailwind + NexusQ tokens</td><td>A host without those classes needs a style map.</td></tr>
   </table>
@@ -415,7 +425,7 @@ const html = `<!DOCTYPE html>
   <h3>5.5 What this chatbox will never do in v1</h3>
   <ul>
     <li>Answer general world knowledge.</li>
-    <li>Place AuditionQ auditions or manage a performer’s account.</li>
+    <li>See or modify a live AuditionQ account (it only explains published how-tos).</li>
     <li>Send email by itself (partner mail is a different form).</li>
     <li>Remember the visitor after refresh.</li>
     <li>Speak, take files, or take payments.</li>
@@ -424,13 +434,14 @@ const html = `<!DOCTYPE html>
   <h2>6. AI chatbox — future plan</h2>
   <p>Not in the current NexusQ v1 freeze unless Lead approves. Suggested order if the widget is copied to another live site:</p>
   <ol>
-    <li><strong>Rewrite knowledge for that product</strong> (mandatory before go-live).</li>
+    <li><strong>Rewrite / sync knowledge</strong> for that product (mandatory before go-live); keep AuditionQ FAQ facts in sync when AuditionQ UI changes.</li>
     <li><strong>Unanswered-question log</strong> (no PII) to grow the knowledge file.</li>
     <li><strong>Rate limit</strong> <code>POST /api/help-chat</code> per IP.</li>
     <li><strong>Handoff chip</strong> into the partner/support form, prefilled from the last question.</li>
     <li><strong>Persist thread</strong> in <code>sessionStorage</code>.</li>
     <li><strong>Generate answers from live page copy</strong> so the file cannot drift.</li>
     <li><strong>Optional grounded LLM</strong> — already supported if <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set; still facts-only. Not required for v1.</li>
+    <li><strong>Video box YouTube embed</strong> — deferred; currently MP4 only.</li>
     <li>Streaming UI, i18n, or an admin FAQ CMS only if Lead expands scope.</li>
   </ol>
 

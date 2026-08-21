@@ -8,7 +8,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex flex-col items-stretch overflow-visible px-5 pt-24 pb-12 text-foreground transition-colors duration-300 sm:px-6 md:min-h-[115svh] md:pt-28 md:pb-56"
+      className="relative flex flex-col items-stretch overflow-visible px-5 pt-24 pb-16 text-foreground transition-colors duration-300 sm:px-6 md:min-h-[115svh] md:pt-28 md:pb-28"
     >
       <div
         aria-hidden
@@ -31,10 +31,7 @@ export default function Hero() {
         }}
       />
 
-      {/* Open lane for top film tape — no z-index layer here */}
-      <div className="h-14 md:h-16 shrink-0" aria-hidden />
-
-      <div className="relative z-20 nq-container">
+      <div className="relative z-20 nq-container pt-2 md:pt-4">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] lg:items-start lg:gap-x-10 xl:gap-x-14">
           <div className="text-center lg:pr-2">
             <p className="nq-eyebrow mb-6">NexusQ Global</p>
@@ -87,15 +84,13 @@ export default function Hero() {
         <CastingMonitor />
       </div>
 
-      {/* Open lane for bottom film tape */}
-      <div className="h-12 md:h-14 lg:h-16 shrink-0" aria-hidden />
-
-      <div className="relative z-20 nq-container pb-10 lg:pb-36">
+      {/* Insight strip — spacing replaces former film-tape lanes */}
+      <div className="relative z-20 nq-container mt-10 md:mt-14 lg:mt-16">
         <HeroSlideCards />
       </div>
 
-      <div className="absolute bottom-8 left-1/2 z-30 hidden -translate-x-1/2 lg:block">
-        <div className="nq-card flex items-center gap-10 px-10 py-5">
+      <div className="relative z-20 mx-auto mt-10 hidden w-full max-w-3xl lg:block">
+        <div className="nq-card flex items-center justify-center gap-10 px-10 py-5">
           <div className="text-center">
             <p className="text-3xl font-bold text-cyan-400">1</p>
             <p className="mt-1 text-sm text-nq-muted">Live Product</p>

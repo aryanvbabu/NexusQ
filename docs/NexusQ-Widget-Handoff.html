@@ -71,7 +71,7 @@
     <h1>Video box and site help chat</h1>
     <p>Video box and AI chatbox: specifications, limitations, future plan, porting guide, and full source.</p>
     <p class="meta">
-      Date: 19 August 2026 (chat composer update)<br />
+      Date: 21 August 2026 (AuditionQ FAQ help + UI polish; film tape removed)<br />
       Source repo: github.com/aryanvbabu/NexusQ<br />
       Live parent site: NexusQ Global (Next.js 16, App Router)<br />
       Purpose: reuse the same widgets on another live website after approval (target: AuditionQ or any NexusQ product site)
@@ -92,15 +92,16 @@
     </tr>
     <tr>
       <td>Site help chat</td>
-      <td>Fixed bottom-right <strong>Help</strong> button → assistant panel</td>
-      <td>Answers only NexusQ website questions; refuses general knowledge</td>
+      <td>Fixed bottom-right <strong>Help</strong> button → polished assistant panel</td>
+      <td>Answers NexusQ website questions <em>and</em> AuditionQ product how-tos (accounts, Talent/Director, casting, teams); refuses general knowledge</td>
     </tr>
   </table>
   <p>
     The old floating <strong>Website Tour</strong> button (<code>EcosystemGuide</code>) was removed.
     Navbar <strong>Guide me</strong> (spotlight tour) is separate and was left in place.
+    Homepage floating film strips/reels were removed (21 August 2026); scene-band backgrounds remain.
   </p>
-  <p class="footer-note">Commit on main that introduced the chat: dc05e64. Video-box click-through is a later local change described in this document.</p>
+  <p class="footer-note">Chat introduced: dc05e64. Composer: 550f71b. 21 Aug 2026: AuditionQ FAQ knowledge, answer-first replies, polished chat UI, film tape removed.</p>
 
   <h2>2. Table of contents</h2>
   <ol class="toc">
@@ -146,6 +147,7 @@
     <li>No sound, controls, fullscreen, or captions.</li>
     <li>No in-page product iframe — destination is the live product URL.</li>
     <li>Not a general video player; it is a branded CTA with motion.</li>
+    <li>YouTube URL embed is <strong>not</strong> supported yet (deferred). Sources must be MP4 (local or direct CDN).</li>
   </ul>
   <h3>3.4 Video box limitations</h3>
   <table>
@@ -163,62 +165,62 @@
   <h2 class="pagebreak">4. AI chatbox — specification</h2>
   <div class="ok">
     <strong>Product name on site:</strong> NexusQ Assistant (floating <strong>Help</strong> button).<br />
-    <strong>What it is:</strong> a website-only guide that retrieves NexusQ facts and composes a reply shaped to the question (not one fixed paragraph per topic).<br />
-    <strong>What it is not:</strong> not ChatGPT, not a general AI, not live human support, not an AuditionQ account helper.
+    <strong>What it is:</strong> a fact composer for NexusQ Global <em>and</em> AuditionQ product how-tos. It answers the question directly first, then adds steps when useful — not one canned paragraph and not filler like “Sure, I’ll answer that.”<br />
+    <strong>What it is not:</strong> not ChatGPT, not a general AI, not live human support, not AuditionQ billing/legal advice.
   </div>
 
   <h3>4.1 Purpose and scope</h3>
   <p>
-    The assistant exists so a visitor can ask “what is this site?”, “is AuditionQ live?”, “how do I partner?”,
-    or “how do I sign in?” and get a short, honest answer plus a link. It must stay inside published NexusQ
-    website facts. If the question is about weather, homework, coding, news, or any other general topic, it must refuse.
+    The assistant helps visitors with this NexusQ site and with using AuditionQ (the live flagship):
+    create account, Talent ↔ Director switch, apply/publish casting calls, team collaboration, password reset, browsers.
+    It must stay inside published facts in <span class="path">lib/site-help.ts</span>. General topics (weather, homework, coding, news) are refused.
   </p>
   <table>
     <tr><th>In scope</th><th>Out of scope</th></tr>
     <tr>
-      <td>NexusQ Global identity; Live vs Vision vs Exploration; named products; how to use this website; partner form; email; sign-in/sign-up on this site; privacy/terms placeholders; theme; the clickable hero video box</td>
-      <td>General knowledge; writing code; AuditionQ in-app support (casting workflows, billing, password reset on auditionq.com); legal advice; invented metrics, launch dates, or office address</td>
+      <td>NexusQ identity; Live vs Vision; named products; partner form; NexusQ site sign-in; privacy/terms placeholders; theme; hero video box; AuditionQ product how-tos (accounts, roles, casting, teams, settings/support)</td>
+      <td>General knowledge; writing code; invented metrics/launch dates; lawyer-reviewed legal advice; YouTube embed in the video box (deferred)</td>
     </tr>
   </table>
 
   <h3>4.2 Architecture spec</h3>
   <table>
     <tr><th>Layer</th><th>File</th><th>Spec</th></tr>
-    <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, panel, bubbles, suggestion chips, input, POST to API</td></tr>
+    <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, gradient header, bubbles, chips, typing dots, input, POST to API</td></tr>
     <tr><td>HTTP API</td><td><span class="path">app/api/help-chat/route.ts</span></td><td><code>POST /api/help-chat</code> only. No GET. No streaming.</td></tr>
-    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + question-shaped composer (yes/no, how, where, list). Skips facts already said.</td></tr>
-    <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only. Otherwise unused.</td></tr>
+    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + simple compose: direct answer first, then numbered steps for how/why. Skips already-said facts. Switch-role topics use up to 4 facts.</td></tr>
+    <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only (answer-first, no filler). 4s timeout → fall back to compose.</td></tr>
     <tr><td>Mount</td><td><span class="path">app/layout.tsx</span></td><td>One instance on every route (home, login, partner, privacy, terms)</td></tr>
   </table>
   <p>
     Runtime: Next.js App Router on the same origin. <strong>No database.</strong> Default path needs no API key (CPU compose only).
-    Optional Groq/OpenAI paraphrase still may not invent facts. Cost per message is CPU, plus provider cost only if a key is set.
+    Optional Groq/OpenAI paraphrase still may not invent facts.
   </p>
 
   <h3>4.3 UI / UX spec</h3>
   <table>
     <tr><th>Element</th><th>Specification</th></tr>
-    <tr><td>Launcher</td><td>Fixed bottom-right (16–24px inset), z-index 80, cyan pill, pulse dot + “Help”</td></tr>
-    <tr><td>Open panel</td><td>Width min(22.5rem, viewport − 2rem); height min(32rem, 100dvh − 5.5rem). Launcher hides while open.</td></tr>
-    <tr><td>Header</td><td>Title “NexusQ Assistant”, subtitle “Website help only”, close (X)</td></tr>
-    <tr><td>Welcome</td><td>One assistant message explaining website-only scope + 4 suggestion chips</td></tr>
-    <tr><td>Default chips</td><td>What is NexusQ Global? · Is AuditionQ live? · How do I partner with you? · How do I sign in?</td></tr>
-    <tr><td>User bubble</td><td>Right-aligned, cyan</td></tr>
-    <tr><td>Assistant bubble</td><td>Left-aligned; optional link under the text; new suggestion chips after each reply</td></tr>
-    <tr><td>Loading</td><td>Shows “Thinking…” until the API returns</td></tr>
-    <tr><td>Input</td><td>Placeholder “Ask about this website…”; maxlength 500; Send disabled when empty or loading</td></tr>
+    <tr><td>Launcher</td><td>Fixed bottom-right, z-index 80, cyan gradient pill, pulse + “Help”</td></tr>
+    <tr><td>Open panel</td><td>Width min(24rem, viewport − 2rem); height min(34rem, 100dvh − 5.5rem). Soft cyan border glow. Launcher hides while open.</td></tr>
+    <tr><td>Header</td><td>Gradient wash; avatar + online status; title “NexusQ Assistant”; subtitle “Online · NexusQ &amp; AuditionQ”; close (X)</td></tr>
+    <tr><td>Welcome</td><td>One assistant message + 4 suggestion chips</td></tr>
+    <tr><td>Default chips</td><td>What is AuditionQ? · How do I create an AuditionQ account? · How do I switch Talent and Director? · How do I partner with you?</td></tr>
+    <tr><td>User bubble</td><td>Right-aligned, cyan gradient</td></tr>
+    <tr><td>Assistant bubble</td><td>Left-aligned; optional CTA link under the text (visit link last for how-tos); new chips after each reply</td></tr>
+    <tr><td>Loading</td><td>Three bouncing cyan dots</td></tr>
+    <tr><td>Input</td><td>Placeholder “Ask your question…”; maxlength 500; Send disabled when empty or loading</td></tr>
     <tr><td>Keyboard</td><td>Enter sends; Escape closes; focus moves to the input on open</td></tr>
     <tr><td>Theme</td><td>Uses <code>--nq-*</code> tokens so light and dark both stay readable</td></tr>
-    <tr><td>Motion</td><td>Framer Motion panel enter/exit (~180ms)</td></tr>
+    <tr><td>Motion</td><td>Framer Motion panel enter/exit; message fade-in</td></tr>
   </table>
 
   <h3>4.4 API spec</h3>
   <p><strong>Request</strong> — <code>POST /api/help-chat</code>, <code>Content-Type: application/json</code></p>
   <pre>{
-  "message": "Is AuditionQ live?",
+  "message": "How do I switch Talent and Director?",
   "history": [
-    { "role": "user", "content": "What is NexusQ?" },
-    { "role": "assistant", "content": "NexusQ Global is a parent company..." }
+    { "role": "user", "content": "What is AuditionQ?" },
+    { "role": "assistant", "content": "AuditionQ is NexusQ Global's live flagship..." }
   ]
 }</pre>
   <table>
@@ -228,9 +230,9 @@
   </table>
   <p><strong>Success (200)</strong></p>
   <pre>{
-  "answer": "AuditionQ is NexusQ Global's live flagship product...",
-  "link": { "label": "Visit AuditionQ", "href": "https://www.auditionq.com/", "external": true },
-  "suggestions": ["Are any other products live?", "How do I partner with NexusQ?"]
+  "answer": "On AuditionQ, Talent and Director are two modes...\n\n1. To switch from Talent to Director...\n2. To switch from Director to Talent...",
+  "link": { "label": "Continue on AuditionQ", "href": "https://www.auditionq.com/", "external": true },
+  "suggestions": ["Can one account be both Talent and Director?", "How do I apply to a casting call?"]
 }</pre>
   <p><strong>Errors</strong></p>
   <table>
@@ -239,38 +241,43 @@
     <tr><td>500</td><td>JSON parse / unexpected server error</td></tr>
   </table>
 
-  <h3>4.5 Fact composer spec (current — 19 August 2026)</h3>
+  <h3>4.5 Fact composer spec (current — 21 August 2026)</h3>
   <p>
-    Replies are <strong>not</strong> a single canned paragraph per topic. Knowledge is stored as short facts.
-    The engine picks facts that match the question type, then stitches a short answer.
+    Replies are <strong>not</strong> a single canned paragraph. Knowledge is short facts.
+    The engine picks facts for the question, then formats a <strong>direct answer first</strong>, then steps when useful — with no filler openers.
   </p>
   <ol>
-    <li>Trim the message. Empty → prompt the visitor to ask about the website (varied wording).</li>
-    <li>Short greeting / thanks → varied welcome or acknowledgement, no retrieval.</li>
-    <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) are expanded with the previous turn.</li>
-    <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code>.</li>
-    <li>If off-topic and no site term → refuse (varied wording).</li>
-    <li>Score topics by keyword/title. Prefer intent-tagged facts (how-questions get how/where facts first).</li>
-    <li>Yes/no about AuditionQ live → a short “yes” lead + 1 supporting fact. Vision products → a short “no” lead.</li>
-    <li>How/where questions use at most 2 facts; broader what/list questions up to 3.</li>
-    <li>Facts already present in earlier assistant messages are skipped. If none remain: say that topic is covered and offer a follow-up.</li>
-    <li>Optional: <span class="path">paraphraseSiteHelp</span> may rewrite the composed reply from those facts if a Groq/OpenAI key is set (4s timeout, then fall back to compose).</li>
+    <li>Trim the message. Empty → ask the visitor what they want to know (varied wording).</li>
+    <li>Short greeting / thanks → welcome or acknowledgement, no retrieval.</li>
+    <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) expand with the previous turn.</li>
+    <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code> (password reset forces <code>how</code>).</li>
+    <li>If off-topic and no site/AuditionQ term → refuse.</li>
+    <li>Score topics by normalized keywords/title. Prefer intent-tagged facts. Stick to the best topic (do not mix unrelated second hits).</li>
+    <li>Yes/no about AuditionQ live → short “yes” lead + supporting fact. Vision products → short “no” lead.</li>
+    <li>How/why: first fact = answer; remaining facts = numbered steps. Switch-role questions allow up to 4 facts and end with a soft “open AuditionQ” nudge; the CTA link is last.</li>
+    <li>Password-reset questions return only the reset fact (not create-account padding).</li>
+    <li>Facts already in earlier assistant messages are skipped. If none remain: say that topic is covered.</li>
+    <li>Optional paraphrase may rewrite from those facts only (answer-first, no filler), 4s timeout, then fall back to compose.</li>
   </ol>
-  <p>Site terms include product names (NexusQ, AuditionQ, FurSure, RideQ, CaringMinds, Onakkodi), partner/login/privacy/terms, and phrases such as “this website”. Off-topic examples: weather, recipes, jokes, homework, sports, crypto, “write python/javascript/code”.</p>
+  <p>Site terms include NexusQ products, partner/login/privacy, and AuditionQ product terms (casting, talent, director, shortlist, OTP, team invite, etc.).</p>
 
   <h3>4.6 Knowledge coverage spec (current)</h3>
   <table>
     <tr><th>Topic id</th><th>Visitor can ask about</th></tr>
     <tr><td>what-is-nexusq</td><td>Who NexusQ is / what this website is</td></tr>
     <tr><td>how-to-use-site</td><td>Nav, sections, Guide me, clicking the video box</td></tr>
-    <tr><td>auditionq</td><td>Live flagship, auditionq.com, monitor click</td></tr>
-    <tr><td>ecosystem</td><td>Named platforms and their status</td></tr>
-    <tr><td>live-vs-vision</td><td>Meaning of Live / Vision / Exploration</td></tr>
-    <tr><td>fursure, rideq, caringminds, onakkodi, future-ai</td><td>Each vision/exploration product — not launched</td></tr>
+    <tr><td>auditionq</td><td>Live flagship overview, auditionq.com, monitor click</td></tr>
+    <tr><td>auditionq-account</td><td>Get Started, Talent/Director signup, OTP, forgot password, sign-in role choice</td></tr>
+    <tr><td>auditionq-switch-roles</td><td>Talent ↔ Director switch both ways; add second profile; what each mode is for</td></tr>
+    <tr><td>auditionq-talent</td><td>Complete profile, apply, photo upload, private team reviews</td></tr>
+    <tr><td>auditionq-director</td><td>Publish casting calls, drafts/KYC, review applicants</td></tr>
+    <tr><td>auditionq-team</td><td>Collaborators, roles, invites/links, Shared with me, Shortlist Reviewer limits</td></tr>
+    <tr><td>auditionq-settings-support</td><td>Email/phone, deactivate, browsers, troubleshooting</td></tr>
+    <tr><td>ecosystem / live-vs-vision</td><td>Named platforms and Live / Vision / Exploration</td></tr>
+    <tr><td>fursure, rideq, caringminds, onakkodi, future-ai</td><td>Vision/exploration — not launched</td></tr>
     <tr><td>partner / email</td><td>Partner form and admin@auditionq.com</td></tr>
-    <tr><td>login</td><td>This site’s sign-in/up (not AuditionQ product login); no Settings page</td></tr>
-    <tr><td>privacy / terms</td><td>That those pages are placeholders</td></tr>
-    <tr><td>trust / theme / vision-company</td><td>Honesty rules, light/dark, why the company exists</td></tr>
+    <tr><td>login</td><td>NexusQ site account only — not AuditionQ product login</td></tr>
+    <tr><td>privacy / terms / trust / theme / vision-company</td><td>Placeholders, honesty, light/dark, mission</td></tr>
   </table>
 
   <h3>4.7 Honesty / safety spec</h3>
@@ -304,11 +311,13 @@
     <tr><td>How do I open AuditionQ?</td><td>URL and/or “click the homepage video box”</td></tr>
     <tr><td>What products do you have?</td><td>Ecosystem list with Live/Vision/Exploration — not the company-overview paragraph</td></tr>
     <tr><td>Is FurSure / RideQ live?</td><td>No — vision, not launched</td></tr>
+    <tr><td>How do I switch Talent and Director?</td><td>Explain both directions + add second profile; AuditionQ link last</td></tr>
+    <tr><td>How do I create an AuditionQ account?</td><td>Get Started → Talent/Director → OTP → onboarding</td></tr>
     <tr><td>How do I partner?</td><td>Partner form path + admin@auditionq.com</td></tr>
-    <tr><td>How do I sign in?</td><td>/login on this site; not AuditionQ product login</td></tr>
-    <tr><td>What’s the weather? / write my homework</td><td>Refuse; stay website-only</td></tr>
+    <tr><td>How do I sign in? (this NexusQ site)</td><td>/login on this site; not AuditionQ product login</td></tr>
+    <tr><td>What’s the weather? / write my homework</td><td>Refuse; stay NexusQ/AuditionQ only</td></tr>
     <tr><td>Thanks</td><td>Short acknowledgement</td></tr>
-    <tr><td>Unrecognised site-ish question</td><td>Fallback: try NexusQ / AuditionQ / partner / sign-in</td></tr>
+    <tr><td>Unrecognised site-ish question</td><td>Fallback: try AuditionQ accounts / roles / partner / sign-in</td></tr>
   </table>
 
   <h2 class="pagebreak">5. AI chatbox — limitations</h2>
@@ -322,15 +331,16 @@
     <tr><td>No deep reasoning</td><td>It cannot debug an account or plan multi-step work. It only rearranges published site facts.</td></tr>
     <tr><td>No live browsing</td><td>It cannot read auditionq.com, email, or a CMS at request time.</td></tr>
     <tr><td>Knowledge can go stale</td><td>If marketing copy changes and <code>site-help.ts</code> is not updated, answers are wrong.</td></tr>
-    <tr><td>Two-topic merge</td><td>Close-scoring topics may both contribute facts; the reply can mix two subjects.</td></tr>
+    <tr><td>Two-topic merge</td><td>Composer prefers the best-matching topic only so unrelated subjects do not pad the reply.</td></tr>
     <tr><td>Follow-up quality is basic</td><td>Short “what about / tell me more” lines use prior context; long mixed questions may still miss.</td></tr>
     <tr><td>Optional LLM can still fail closed</td><td>If Groq/OpenAI errors or times out, the composed fact answer is returned instead.</td></tr>
+    <tr><td>AuditionQ FAQ can drift</td><td>Product how-tos were ported from AuditionQ FAQ. If AuditionQ UI changes, update <code>site-help.ts</code>.</td></tr>
   </table>
   <h3>5.2 Scope and product honesty</h3>
   <table>
     <tr><th>Limitation</th><th>What that means</th></tr>
-    <tr><td>Website facts only</td><td>Cannot help with AuditionQ casting tools, billing, or password reset inside the live product.</td></tr>
-    <tr><td>No human agent</td><td>No live chat queue. The panel can only point at /partner or email.</td></tr>
+    <tr><td>Published facts only</td><td>Can explain AuditionQ how-tos stored in the knowledge file, but cannot see a live account, casting tools, or billing.</td></tr>
+    <tr><td>No human agent</td><td>No live chat queue. The panel can only point at /partner, email, or Continue on AuditionQ.</td></tr>
     <tr><td>Off-topic list is finite</td><td>Some general questions may still get a weak site match instead of a clean refuse.</td></tr>
     <tr><td>Must not invent</td><td>Will not (and must not) create metrics, launch dates, prices, or an office address.</td></tr>
     <tr><td>Legal copy is placeholder</td><td>Privacy/terms answers say the pages are not lawyer-reviewed.</td></tr>
@@ -343,7 +353,7 @@
     <tr><td>8-turn history cap</td><td>Older context is dropped on the server.</td></tr>
     <tr><td>Thread not persisted</td><td>Reload or a new device starts from the welcome message.</td></tr>
     <tr><td>No voice / no attachments / no markdown rendering beyond line breaks</td><td>Text only.</td></tr>
-    <tr><td>No streaming tokens</td><td>The visitor waits for the full answer (“Thinking…”).</td></tr>
+    <tr><td>No streaming tokens</td><td>The visitor waits for the full answer (typing dots).</td></tr>
     <tr><td>Mobile overlap</td><td>The FAB can sit on top of other sticky UI on a different site unless z-index and offsets are retuned.</td></tr>
     <tr><td>Tailwind + NexusQ tokens</td><td>A host without those classes needs a style map.</td></tr>
   </table>
@@ -358,7 +368,7 @@
   <h3>5.5 What this chatbox will never do in v1</h3>
   <ul>
     <li>Answer general world knowledge.</li>
-    <li>Place AuditionQ auditions or manage a performer’s account.</li>
+    <li>See or modify a live AuditionQ account (it only explains published how-tos).</li>
     <li>Send email by itself (partner mail is a different form).</li>
     <li>Remember the visitor after refresh.</li>
     <li>Speak, take files, or take payments.</li>
@@ -367,13 +377,14 @@
   <h2>6. AI chatbox — future plan</h2>
   <p>Not in the current NexusQ v1 freeze unless Lead approves. Suggested order if the widget is copied to another live site:</p>
   <ol>
-    <li><strong>Rewrite knowledge for that product</strong> (mandatory before go-live).</li>
+    <li><strong>Rewrite / sync knowledge</strong> for that product (mandatory before go-live); keep AuditionQ FAQ facts in sync when AuditionQ UI changes.</li>
     <li><strong>Unanswered-question log</strong> (no PII) to grow the knowledge file.</li>
     <li><strong>Rate limit</strong> <code>POST /api/help-chat</code> per IP.</li>
     <li><strong>Handoff chip</strong> into the partner/support form, prefilled from the last question.</li>
     <li><strong>Persist thread</strong> in <code>sessionStorage</code>.</li>
     <li><strong>Generate answers from live page copy</strong> so the file cannot drift.</li>
     <li><strong>Optional grounded LLM</strong> — already supported if <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set; still facts-only. Not required for v1.</li>
+    <li><strong>Video box YouTube embed</strong> — deferred; currently MP4 only.</li>
     <li>Streaming UI, i18n, or an admin FAQ CMS only if Lead expands scope.</li>
   </ol>
 
@@ -833,12 +844,12 @@ const STARTER: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi — I can help with this NexusQ Global website only: who we are, which products are live or still vision, AuditionQ, partnering, and sign-in. What would you like to know?",
+    "Hi — I can help with NexusQ and AuditionQ: accounts, Talent/Director, casting &amp; teams, partnering, and site sign-in. What would you like to know?",
   suggestions: [
-    "What is NexusQ Global?",
-    "Is AuditionQ live?",
+    "What is AuditionQ?",
+    "How do I create an AuditionQ account?",
+    "How do I switch Talent and Director?",
     "How do I partner with you?",
-    "How do I sign in?",
   ],
 };
 
@@ -952,40 +963,63 @@ export default function SiteHelpChat() {
         {open ? (
           &lt;motion.section
             key="panel"
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            initial={{ opacity: 0, y: 18, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.96 }}
-            transition={{ duration: 0.18 }}
+            exit={{ opacity: 0, y: 14, scale: 0.96 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             aria-label="NexusQ site help chat"
-            className="mb-3 flex h-[min(32rem,calc(100dvh-5.5rem))] w-[min(22.5rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-nq-border bg-nq-surface shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+            className="mb-3 flex h-[min(34rem,calc(100dvh-5.5rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.35rem] border border-cyan-400/20 bg-nq-surface shadow-[0_24px_64px_rgba(0,0,0,0.5),0_0_0_1px_rgba(34,211,238,0.08)]"
           &gt;
-            &lt;header className="flex items-center justify-between gap-3 border-b border-nq-border bg-nq-surface-elevated px-4 py-3"&gt;
-              &lt;div className="flex min-w-0 items-center gap-2.5"&gt;
-                &lt;span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500/15 text-cyan-400"&gt;
-                  &lt;Sparkles className="h-4 w-4" aria-hidden /&gt;
-                &lt;/span&gt;
-                &lt;div className="min-w-0"&gt;
-                  &lt;p className="text-sm font-semibold text-nq-text"&gt;NexusQ Assistant&lt;/p&gt;
-                  &lt;p className="text-[11px] text-nq-muted"&gt;Website help only&lt;/p&gt;
+            &lt;header className="relative overflow-hidden border-b border-cyan-400/15 px-4 py-3.5"&gt;
+              &lt;div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(34,211,238,0.16) 0%, rgba(15,23,42,0.2) 45%, transparent 100%)",
+                }}
+              /&gt;
+              &lt;div className="relative flex items-center justify-between gap-3"&gt;
+                &lt;div className="flex min-w-0 items-center gap-3"&gt;
+                  &lt;span className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.25)]"&gt;
+                    &lt;Sparkles className="h-4.5 w-4.5 h-4 w-4" aria-hidden /&gt;
+                    &lt;span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-nq-surface bg-emerald-400" /&gt;
+                  &lt;/span&gt;
+                  &lt;div className="min-w-0"&gt;
+                    &lt;p className="text-sm font-semibold tracking-tight text-nq-text"&gt;
+                      NexusQ Assistant
+                    &lt;/p&gt;
+                    &lt;p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-nq-muted"&gt;
+                      &lt;span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" /&gt;
+                      Online · NexusQ &amp; AuditionQ
+                    &lt;/p&gt;
+                  &lt;/div&gt;
                 &lt;/div&gt;
+                &lt;button
+                  type="button"
+                  onClick={() =&gt; setOpen(false)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-nq-muted transition hover:bg-white/5 hover:text-nq-text"
+                  aria-label="Close help chat"
+                &gt;
+                  &lt;X className="h-4 w-4" /&gt;
+                &lt;/button&gt;
               &lt;/div&gt;
-              &lt;button
-                type="button"
-                onClick={() =&gt; setOpen(false)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-nq-muted hover:bg-nq-accent-soft hover:text-nq-text"
-                aria-label="Close help chat"
-              &gt;
-                &lt;X className="h-4 w-4" /&gt;
-              &lt;/button&gt;
             &lt;/header&gt;
 
             &lt;div
               ref={listRef}
-              className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3"
+              className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-3.5 py-4"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34,211,238,0.06), transparent 60%)",
+              }}
             &gt;
               {messages.map((msg) =&gt; (
-                &lt;div
+                &lt;motion.div
                   key={msg.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
                   className={
                     msg.role === "user" ? "flex justify-end" : "flex justify-start"
                   }
@@ -993,8 +1027,8 @@ export default function SiteHelpChat() {
                   &lt;div
                     className={
                       msg.role === "user"
-                        ? "max-w-[85%] rounded-2xl rounded-br-md bg-cyan-500 px-3.5 py-2 text-sm leading-relaxed text-slate-950"
-                        : "max-w-[90%] rounded-2xl rounded-bl-md border border-nq-border bg-nq-surface-elevated px-3.5 py-2 text-sm leading-relaxed text-nq-text"
+                        ? "max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-br from-cyan-400 to-cyan-500 px-3.5 py-2.5 text-sm leading-relaxed text-slate-950 shadow-[0_8px_24px_rgba(34,211,238,0.28)]"
+                        : "max-w-[90%] rounded-2xl rounded-bl-md border border-nq-border/80 bg-nq-surface-elevated/95 px-3.5 py-2.5 text-sm leading-relaxed text-nq-text shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm"
                     }
                   &gt;
                     &lt;p className="whitespace-pre-wrap"&gt;{msg.content}&lt;/p&gt;
@@ -1004,14 +1038,14 @@ export default function SiteHelpChat() {
                           href={msg.link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-2 inline-flex text-xs font-medium text-cyan-400 hover:underline"
+                          className="mt-2.5 inline-flex items-center rounded-lg bg-cyan-500/10 px-2.5 py-1 text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/20"
                         &gt;
                           {msg.link.label} →
                         &lt;/a&gt;
                       ) : (
                         &lt;Link
                           href={msg.link.href}
-                          className="mt-2 inline-flex text-xs font-medium text-cyan-400 hover:underline"
+                          className="mt-2.5 inline-flex items-center rounded-lg bg-cyan-500/10 px-2.5 py-1 text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/20"
                           onClick={() =&gt; setOpen(false)}
                         &gt;
                           {msg.link.label} →
@@ -1019,26 +1053,28 @@ export default function SiteHelpChat() {
                       )
                     ) : null}
                   &lt;/div&gt;
-                &lt;/div&gt;
+                &lt;/motion.div&gt;
               ))}
 
               {loading ? (
                 &lt;div className="flex justify-start"&gt;
-                  &lt;div className="rounded-2xl border border-nq-border bg-nq-surface-elevated px-3.5 py-2 text-xs text-nq-muted"&gt;
-                    Thinking…
+                  &lt;div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-nq-border/80 bg-nq-surface-elevated px-3.5 py-3 shadow-sm"&gt;
+                    &lt;span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:0ms]" /&gt;
+                    &lt;span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:150ms]" /&gt;
+                    &lt;span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:300ms]" /&gt;
                   &lt;/div&gt;
                 &lt;/div&gt;
               ) : null}
             &lt;/div&gt;
 
             {!loading &amp;&amp; lastAssistant?.suggestions?.length ? (
-              &lt;div className="flex flex-wrap gap-1.5 border-t border-nq-border px-3 py-2"&gt;
+              &lt;div className="flex flex-wrap gap-1.5 border-t border-nq-border/70 bg-nq-surface-elevated/40 px-3.5 py-2.5"&gt;
                 {lastAssistant.suggestions.map((suggestion) =&gt; (
                   &lt;button
                     key={suggestion}
                     type="button"
                     onClick={() =&gt; void send(suggestion)}
-                    className="rounded-full border border-nq-border bg-nq-surface-elevated px-2.5 py-1 text-[11px] text-nq-muted hover:border-cyan-400/40 hover:text-nq-text"
+                    className="rounded-full border border-nq-border bg-nq-bg/80 px-2.5 py-1 text-[11px] text-nq-muted transition hover:border-cyan-400/50 hover:bg-cyan-500/10 hover:text-cyan-200"
                   &gt;
                     {suggestion}
                   &lt;/button&gt;
@@ -1048,21 +1084,21 @@ export default function SiteHelpChat() {
 
             &lt;form
               onSubmit={onSubmit}
-              className="flex items-center gap-2 border-t border-nq-border px-3 py-2.5"
+              className="flex items-center gap-2 border-t border-nq-border/80 bg-nq-surface-elevated/60 px-3.5 py-3"
             &gt;
               &lt;input
                 ref={inputRef}
                 value={input}
                 onChange={(e) =&gt; setInput(e.target.value)}
                 maxLength={500}
-                placeholder="Ask about this website…"
-                aria-label="Ask about this website"
-                className="min-w-0 flex-1 rounded-xl border border-nq-border bg-nq-bg px-3 py-2 text-sm text-nq-text outline-none placeholder:text-nq-muted focus:border-cyan-400/50"
+                placeholder="Ask your question…"
+                aria-label="Ask your question"
+                className="min-w-0 flex-1 rounded-xl border border-nq-border bg-nq-bg px-3.5 py-2.5 text-sm text-nq-text outline-none placeholder:text-nq-muted transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
               /&gt;
               &lt;button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-slate-950 disabled:opacity-40"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 text-slate-950 shadow-[0_8px_20px_rgba(34,211,238,0.35)] transition hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-40 disabled:shadow-none"
                 aria-label="Send message"
               &gt;
                 &lt;Send className="h-4 w-4" /&gt;
@@ -1073,20 +1109,22 @@ export default function SiteHelpChat() {
       &lt;/AnimatePresence&gt;
 
       {!open ? (
-        &lt;button
+        &lt;motion.button
           type="button"
           onClick={() =&gt; setOpen(true)}
           aria-expanded={false}
           aria-label="Open NexusQ help chat"
-          className="ml-auto flex items-center gap-2 rounded-full bg-cyan-500 px-3 py-2.5 text-xs font-semibold text-slate-950 shadow-lg transition hover:bg-cyan-400 active:scale-95 sm:px-4 sm:py-3 sm:text-sm"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          className="ml-auto flex items-center gap-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-[0_12px_36px_rgba(34,211,238,0.4)] ring-1 ring-white/20"
         &gt;
           &lt;span className="relative flex h-2 w-2"&gt;
-            &lt;span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /&gt;
+            &lt;span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" /&gt;
             &lt;span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /&gt;
           &lt;/span&gt;
           &lt;MessageCircle className="h-4 w-4" aria-hidden /&gt;
           Help
-        &lt;/button&gt;
+        &lt;/motion.button&gt;
       ) : null}
     &lt;/div&gt;
   );
@@ -1198,6 +1236,7 @@ export type RetrievedHelp = {
   link?: HelpLink;
   suggestions: string[];
   lead?: string;
+  topic?: string;
 };
 
 const SITE_TERMS = [
@@ -1217,6 +1256,7 @@ const SITE_TERMS = [
   "partner",
   "partnership",
   "collaborate",
+  "collaborator",
   "login",
   "sign in",
   "sign up",
@@ -1248,6 +1288,34 @@ const SITE_TERMS = [
   "auditionq.com",
   "video box",
   "monitor",
+  // AuditionQ product help
+  "casting",
+  "casting call",
+  "casting director",
+  "talent",
+  "actor",
+  "actress",
+  "performer",
+  "director",
+  "director mode",
+  "talent mode",
+  "apply",
+  "application",
+  "shortlist",
+  "final list",
+  "profile",
+  "otp",
+  "kyc",
+  "team invite",
+  "shared with me",
+  "workspace link",
+  "casting manager",
+  "shortlist reviewer",
+  "forgot password",
+  "password",
+  "deactivate",
+  "browser",
+  "browsers",
 ];
 
 const OFF_TOPIC = [
@@ -1273,10 +1341,10 @@ const OFF_TOPIC = [
 ];
 
 const DEFAULT_SUGGESTIONS = [
-  "What is NexusQ Global?",
-  "Is AuditionQ live?",
-  "How do I partner with you?",
-  "How do I sign in?",
+  "What is AuditionQ?",
+  "How do I create an AuditionQ account?",
+  "How do I switch Talent and Director?",
+  "How do I partner with NexusQ?",
 ];
 
 const GREETING = /^(hi|hello|hey|yo|hiya|good (morning|afternoon|evening)|howdy)\b/i;
@@ -1292,11 +1360,11 @@ const knowledge: KnowledgeEntry[] = [
       "nexus q",
       "who are you",
       "what is this",
-      "this website",
-      "this site",
+      "what is this site",
+      "what is this website",
       "company",
       "parent company",
-      "about",
+      "about nexusq",
       "what do you do",
       "who is nexusq",
       "overview",
@@ -1371,38 +1439,40 @@ const knowledge: KnowledgeEntry[] = [
       "audition q",
       "flagship",
       "live product",
-      "talent",
-      "casting",
       "audition",
       "interview",
       "auditionq.com",
       "video box",
       "monitor",
       "casting room",
-      "open",
-      "visit",
-      "click",
+      "open auditionq",
+      "visit auditionq",
+      "what is auditionq",
     ],
     facts: [
       {
-        text: "AuditionQ is NexusQ Global’s live flagship product.",
+        text: "AuditionQ is NexusQ Global’s live flagship product — the only platform on this site marked Live.",
         intents: ["what", "yesno", "general"],
       },
       {
-        text: "It is a modern, AI-powered platform that connects talent with opportunities through an audition and interview experience.",
+        text: "It is a modern casting platform that connects actors and performers with casting directors and production companies.",
         intents: ["what", "general"],
+      },
+      {
+        text: "Actors can discover casting calls, build profiles, and apply to roles. Casting directors can publish calls, search talent, manage applications, and invite collaborators.",
+        intents: ["what", "list", "how"],
       },
       {
         text: "AuditionQ is available today at https://www.auditionq.com/.",
         intents: ["where", "how", "yesno"],
       },
       {
-        text: "On this homepage, click the casting video box (Live audition / AuditionQ) to open that site.",
+        text: "On this NexusQ homepage, click the casting video box to open AuditionQ in a new tab.",
         intents: ["how", "where"],
       },
       {
-        text: "AuditionQ is a distinct product; NexusQ Global remains the parent company. It is the only platform on this site marked Live.",
-        intents: ["yesno", "what", "list"],
+        text: "AuditionQ is a distinct product; NexusQ Global remains the parent company. An account on this NexusQ site is not an AuditionQ product login.",
+        intents: ["yesno"],
       },
     ],
     link: {
@@ -1411,9 +1481,359 @@ const knowledge: KnowledgeEntry[] = [
       external: true,
     },
     suggestions: [
-      "Are any other products live?",
-      "How do I partner with NexusQ?",
-      "What is Future AI?",
+      "How do I create an AuditionQ account?",
+      "How do I switch Talent and Director?",
+      "What is project team collaboration?",
+    ],
+  },
+  {
+    id: "auditionq-account",
+    title: "AuditionQ create account and sign in",
+    keywords: [
+      "create account",
+      "get started",
+      "register",
+      "registration",
+      "sign up auditionq",
+      "auditionq account",
+      "otp",
+      "verify",
+      "forgot password",
+      "forgot my password",
+      "reset password",
+      "password",
+      "sign in as",
+      "google sign",
+      "talent or director",
+      "actor or casting",
+    ],
+    facts: [
+      {
+        text: "On AuditionQ (auditionq.com), click Get Started and choose Talent (Actor) or Director (Casting Director).",
+        intents: ["how", "where"],
+      },
+      {
+        text: "Complete registration with your email and phone, verify OTP codes, then follow onboarding to set up your profile.",
+        intents: ["how"],
+      },
+      {
+        text: "One email can later add the other profile and switch between Talent and Director without a second login.",
+        intents: ["how", "yesno", "what"],
+      },
+      {
+        text: "If you forgot your password, use Forgot Password on the AuditionQ login page, enter your email, and follow the reset link (check spam if needed).",
+        intents: ["how", "where", "general"],
+      },
+      {
+        text: "On login you can choose “Sign in as” Talent or Director when your account has both; your last session is selected by default. Google sign-in uses the same role choice.",
+        intents: ["how", "what"],
+      },
+    ],
+    link: {
+      label: "Open AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "Can one account be both Talent and Director?",
+      "How do I switch Talent and Director?",
+      "How do I complete my AuditionQ profile?",
+    ],
+  },
+  {
+    id: "auditionq-switch-roles",
+    title: "AuditionQ Talent and Director modes",
+    keywords: [
+      "switch",
+      "switching",
+      "switch profile",
+      "switch profiles",
+      "talent mode",
+      "director mode",
+      "switch to talent",
+      "switch to director",
+      "talent to director",
+      "director to talent",
+      "talent and director",
+      "director and talent",
+      "add director",
+      "add talent",
+      "both talent and director",
+      "dual role",
+      "same account",
+      "second profile",
+      "change mode",
+      "change role",
+    ],
+    facts: [
+      {
+        text: "On AuditionQ, Talent and Director are two modes on the same account — you switch between them without logging out or creating a second login.",
+        intents: ["how", "what", "general"],
+      },
+      {
+        text: "To switch from Talent to Director: open the account menu (your avatar in the top header) or the sidebar Switch control, then choose “Switch to Director.” You land on the Director dashboard and can publish casting calls, review applicants, and manage teams.",
+        intents: ["how", "where"],
+      },
+      {
+        text: "To switch from Director to Talent: use the same account menu or sidebar Switch control and choose “Switch to Talent.” You land on the Talent dashboard and can complete your profile, browse casting calls, and apply to roles.",
+        intents: ["how", "where"],
+      },
+      {
+        text: "If you only have one profile yet, choose “Add Director profile” or “Add Talent profile” from the account menu or sidebar, finish the short setup, then use Switch anytime.",
+        intents: ["how", "yesno", "what"],
+      },
+      {
+        text: "AuditionQ remembers the mode you used last and opens that workspace next time you sign in. On the login page you can also pick Talent or Director before signing in if both profiles exist.",
+        intents: ["how", "what"],
+      },
+      {
+        text: "Yes — one email can have both a Talent profile and a Director profile.",
+        intents: ["yesno", "what"],
+      },
+      {
+        text: "Applying to a casting call needs Talent mode (AuditionQ will prompt you to switch if you are in Director). Team invites and casting collaboration need Director mode.",
+        intents: ["how", "why", "yesno"],
+      },
+    ],
+    link: {
+      label: "Continue on AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "Can one account be both Talent and Director?",
+      "How do I apply to a casting call?",
+      "How do I publish a casting call?",
+    ],
+  },
+  {
+    id: "auditionq-talent",
+    title: "AuditionQ for talent and actors",
+    keywords: [
+      "actor",
+      "actress",
+      "performer",
+      "talent profile",
+      "complete profile",
+      "apply",
+      "apply to",
+      "application",
+      "cannot apply",
+      "can t apply",
+      "cant apply",
+      "why can t i apply",
+      "photo upload",
+      "photos",
+      "primary photo",
+      "match score",
+      "see ratings",
+      "collaborator notes",
+    ],
+    facts: [
+      {
+        text: "After signing in as Talent, complete your profile from the dashboard (Complete Profile or Profile settings): basic info, professional details, photos, and preferences.",
+        intents: ["how", "where"],
+      },
+      {
+        text: "A complete profile improves visibility and match scores with casting calls. Director/company profile is completed separately while in Director mode.",
+        intents: ["what", "how"],
+      },
+      {
+        text: "If you cannot apply, common reasons are: deadline passed, you are in Director mode, Talent profile incomplete, you already applied, or it is your own casting call. Switch to Talent with a primary photo, then try Apply again.",
+        intents: ["why", "how", "yesno"],
+      },
+      {
+        text: "Photo uploads support JPG, PNG, or WebP under 5 MB. If upload fails, try a smaller file, check your connection, refresh, or use Report a Problem in AuditionQ Help.",
+        intents: ["how", "why", "what"],
+      },
+      {
+        text: "Ratings, notes, and favourites from casting team collaborators are private to the project team — applicants are not notified and cannot see them.",
+        intents: ["yesno", "what"],
+      },
+    ],
+    link: {
+      label: "Open AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "How do I switch Talent and Director?",
+      "Why can’t I apply to a casting call?",
+      "What browsers does AuditionQ support?",
+    ],
+  },
+  {
+    id: "auditionq-director",
+    title: "AuditionQ for casting directors",
+    keywords: [
+      "publish",
+      "publish casting",
+      "create casting",
+      "new casting call",
+      "draft",
+      "stuck in draft",
+      "review applications",
+      "review applicants",
+      "invite for audition",
+      "reject applicant",
+      "kyc",
+      "director verification",
+    ],
+    facts: [
+      {
+        text: "As a Casting Director, go to Casting Calls, create a call, fill required details, save a draft, then Preview and Publish. KYC verification may be required before publishing.",
+        intents: ["how", "where"],
+      },
+      {
+        text: "If you are in Talent mode, switch to Director first. Casting Managers on a shared project can also publish when they have that permission.",
+        intents: ["how", "what"],
+      },
+      {
+        text: "Drafts stay unpublished until required fields pass validation — check a future deadline, required roles, and approved director verification.",
+        intents: ["why", "how"],
+      },
+      {
+        text: "Open a call from the dashboard or My Casting Calls to review applicants. Depending on permissions you can shortlist, move to Final List, reject, invite for audition, message talent, and update status.",
+        intents: ["what"],
+      },
+    ],
+    link: {
+      label: "Open AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "How do I invite collaborators?",
+      "What do the team roles mean?",
+      "Where do I find shared casting calls?",
+    ],
+  },
+  {
+    id: "auditionq-team",
+    title: "AuditionQ project team collaboration",
+    keywords: [
+      "team",
+      "collaboration",
+      "collaborating",
+      "collaborator",
+      "invite",
+      "invite collaborators",
+      "invite team",
+      "team invite",
+      "workspace link",
+      "whatsapp",
+      "casting manager",
+      "shortlist reviewer",
+      "shortlist",
+      "unlist",
+      "final list",
+      "viewer",
+      "shared with me",
+      "shared casting",
+      "find shared",
+      "collaborating on",
+      "team tab",
+      "team reviews",
+      "team roles",
+      "access request",
+      "approve",
+      "remove collaborator",
+      "collaborator limit",
+      "email mismatch",
+      "join team",
+      "cannot shortlist",
+      "can t shortlist",
+      "cant shortlist",
+    ],
+    facts: [
+      {
+        text: "Project owners can invite collaborators onto a casting call with roles: Casting Manager, Shortlist Reviewer, or Viewer.",
+        intents: ["what", "list", "general"],
+      },
+      {
+        text: "Invite from the casting call → Team tab → Add team member by email, WhatsApp, or a shareable workspace link. Email invites join when the matching account signs in.",
+        intents: ["how"],
+      },
+      {
+        text: "WhatsApp/share links for Shortlist Reviewer or Viewer join without approval; Casting Manager links need owner/manager approval. Email-mismatch joins become access requests instead of auto-join.",
+        intents: ["how"],
+      },
+      {
+        text: "By default Shortlist Reviewers cannot Short List, Invite for Audition, or message talent. Ask the owner or a Casting Manager to customize permissions or assign Casting Manager instead.",
+        intents: ["why", "yesno"],
+      },
+      {
+        text: "Casting Manager is near-owner access (edit/publish, manage team, casting actions). Shortlist Reviewer works Shortlist/Final List (move to Final List, reject, rate/note) but cannot Short List or Invite by default. Viewer is read-only on Shortlist and Final List.",
+        intents: ["what", "list", "why"],
+      },
+      {
+        text: "Shared projects appear under Shared with me in the Director sidebar and in My Casting Calls marked Shared.",
+        intents: ["where"],
+      },
+      {
+        text: "Owners and Casting Managers see Team reviews (average rating and collaborator notes) on the Team tab — private to the team, not shown to talent. Remove members from the Team tab; each plan has a collaborator seat limit.",
+        intents: ["where"],
+      },
+    ],
+    link: {
+      label: "Open AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "What do the team roles mean?",
+      "How do I approve a team access request?",
+      "I’m a Shortlist Reviewer — what can I see?",
+    ],
+  },
+  {
+    id: "auditionq-settings-support",
+    title: "AuditionQ settings and support",
+    keywords: [
+      "update email",
+      "update phone",
+      "deactivate",
+      "delete account",
+      "account privacy",
+      "supported browsers",
+      "browsers",
+      "browser",
+      "chrome",
+      "firefox",
+      "safari",
+      "edge",
+      "page not loading",
+      "not saving",
+      "report a problem",
+      "cache",
+    ],
+    facts: [
+      {
+        text: "Update email or phone in AuditionQ Settings; some changes need OTP. Contact details are shared across Talent and Director on the same account.",
+        intents: ["how", "where"],
+      },
+      {
+        text: "Under Settings → Account &amp; Privacy you can deactivate temporarily or request permanent deletion (may need OTP). That applies to the whole account including both profiles.",
+        intents: ["how", "where", "what"],
+      },
+      {
+        text: "AuditionQ works best on the latest Chrome, Firefox, Safari, and Edge on desktop, tablet, and mobile with a stable connection for uploads and video.",
+        intents: ["what", "list", "how"],
+      },
+      {
+        text: "If a page will not load or save: refresh, check internet, clear cache, or try another browser. Persistent issues: Report a Problem from the AuditionQ Help button and describe what you were doing.",
+        intents: ["how", "why"],
+      },
+    ],
+    link: {
+      label: "Open AuditionQ",
+      href: "https://www.auditionq.com/",
+      external: true,
+    },
+    suggestions: [
+      "How do I create an AuditionQ account?",
+      "I forgot my AuditionQ password",
+      "What is AuditionQ?",
     ],
   },
   {
@@ -1653,29 +2073,33 @@ const knowledge: KnowledgeEntry[] = [
       "sign in",
       "sign up",
       "signup",
-      "register",
-      "account",
-      "password",
-      "create account",
+      "nexusq account",
+      "this site account",
+      "website account",
+      "nexusq site",
       "sign out",
-      "settings",
+      "settings page",
     ],
     facts: [
       {
-        text: "Use Sign In in the navbar to open /login. You can create an account with name, email, and password, or sign in if you already have one.",
+        text: "After you sign in, the navbar shows your name and Sign Out. There is no Settings page on this NexusQ site.",
+        intents: ["what"],
+      },
+      {
+        text: "Use Sign In in the navbar to open /login. You can create a NexusQ website account with name, email, and password, or sign in if you already have one.",
         intents: ["how", "where"],
       },
       {
-        text: "After you sign in, the navbar shows your name and Sign Out.",
-        intents: ["how", "what"],
-      },
-      {
-        text: "This account is for the NexusQ Global website — it is not an AuditionQ product login. There is no Settings page on this site.",
-        intents: ["what", "yesno"],
+        text: "This account is only for the NexusQ Global website — not AuditionQ. To use AuditionQ as Talent or Director, create an account at https://www.auditionq.com/ (Get Started).",
+        intents: ["what", "yesno", "how"],
       },
     ],
     link: { label: "Go to Sign In", href: "/login" },
-    suggestions: ["What data do you store?", "How do I partner?"],
+    suggestions: [
+      "How do I create an AuditionQ account?",
+      "What data do you store?",
+      "How do I partner?",
+    ],
   },
   {
     id: "privacy",
@@ -1799,6 +2223,9 @@ function isSiteRelated(query: string) {
 }
 
 function detectIntent(query: string): Intent {
+  if (/\b(forgot|reset).*\bpassword\b|\bpassword\b.*\b(forgot|reset)\b/.test(query)) {
+    return "how";
+  }
   if (/\b(how do i|how can i|how to|how does|steps?)\b/.test(query)) return "how";
   if (/\bwhere\b/.test(query)) return "where";
   if (/\bwhy\b/.test(query)) return "why";
@@ -1811,7 +2238,13 @@ function detectIntent(query: string): Intent {
   ) {
     return "yesno";
   }
-  if (/\b(what is|what's|who is|tell me about|explain)\b/.test(query)) return "what";
+  if (
+    /\b(what is|what's|what are|what do|what does|who is|tell me about|explain|mean)\b/.test(
+      query
+    )
+  ) {
+    return "what";
+  }
   return "general";
 }
 
@@ -1820,16 +2253,21 @@ function scoreEntry(query: string, entry: KnowledgeEntry) {
   const qTokens = new Set(query.split(" ").filter((t) =&gt; t.length &gt; 1));
 
   for (const keyword of entry.keywords) {
-    if (query.includes(keyword)) {
-      score += keyword.includes(" ") ? 8 : 5;
-    } else {
-      const kTokens = keyword.split(" ");
+    const kw = normalize(keyword);
+    if (!kw) continue;
+    if (query.includes(kw)) {
+      score += kw.includes(" ") ? 10 : 5;
+      continue;
+    }
+    const kTokens = kw.split(" ").filter((t) =&gt; t.length &gt; 1);
+    if (kTokens.length &gt; 1) {
       const overlap = kTokens.filter((t) =&gt; qTokens.has(t)).length;
-      if (overlap &amp;&amp; overlap === kTokens.length) score += 3;
+      if (overlap === kTokens.length) score += 9;
+      else if (overlap &gt;= 2) score += 4;
     }
   }
 
-  for (const word of entry.title.toLowerCase().split(" ")) {
+  for (const word of normalize(entry.title).split(" ")) {
     if (word.length &gt; 2 &amp;&amp; qTokens.has(word)) score += 2;
   }
 
@@ -1905,20 +2343,33 @@ function yesNoLead(query: string, seed: number): string | undefined {
 function selectFacts(
   entries: KnowledgeEntry[],
   intent: Intent,
+  query: string,
   said: string,
   limit: number
 ) {
   const picked: string[] = [];
+  const passwordOnly = /\b(forgot|reset).*\bpassword\b|\bpassword\b.*\b(forgot|reset)\b/.test(
+    query
+  );
+
   for (const entry of entries) {
-    const unused = entry.facts.filter((f) =&gt; !said.includes(f.text.slice(0, 48).toLowerCase()));
+    let unused = entry.facts.filter((f) =&gt; !said.includes(f.text.slice(0, 48).toLowerCase()));
+    if (passwordOnly) {
+      unused = unused.filter((f) =&gt; /password/i.test(f.text));
+    } else if (entry.id === "auditionq-account") {
+      // Keep password-reset copy for forgot/reset questions only.
+      unused = unused.filter((f) =&gt; !/forgot your password/i.test(f.text));
+    }
     const tagged = unused.filter((f) =&gt; f.intents?.includes(intent));
-    const fallback = unused.filter((f) =&gt; !tagged.includes(f));
-    const pool = [...tagged, ...fallback].map((f) =&gt; f.text);
+    const pool = (tagged.length &gt; 0 ? tagged : unused).map((f) =&gt; f.text);
+    const before = picked.length;
     for (const text of pool) {
       if (picked.includes(text)) continue;
       picked.push(text);
       if (picked.length &gt;= limit) return picked;
     }
+    // Stick to the best-matching topic so unrelated second hits do not pad the reply.
+    if (picked.length &gt; before) return picked;
   }
   if (picked.length === 0) {
     for (const entry of entries) {
@@ -2009,9 +2460,26 @@ export function retrieveSiteHelp(
     chosen.push(second.entry);
   }
 
-  const factLimit =
-    intent === "yesno" ? (yesNoLead(query, seed) ? 1 : 2) : intent === "where" || intent === "how" ? 2 : 3;
-  const facts = selectFacts(chosen, intent, alreadySaid(history), factLimit);
+  const switchTopic =
+    best.entry.id === "auditionq-switch-roles" ||
+    /\b(switch|switching).*\b(talent|director|profile|mode|role)\b|\b(talent|director).*\b(switch|profile)\b/.test(
+      query
+    );
+
+  const factLimit = /\b(forgot|reset).*\bpassword\b|\bpassword\b.*\b(forgot|reset)\b/.test(
+    query
+  )
+    ? 1
+    : switchTopic
+      ? 4
+      : intent === "yesno"
+        ? yesNoLead(query, seed)
+          ? 1
+          : 2
+        : intent === "where"
+          ? 2
+          : 3;
+  const facts = selectFacts(chosen, intent, query, alreadySaid(history), factLimit);
 
   if (facts.length === 0) {
     return {
@@ -2021,11 +2489,12 @@ export function retrieveSiteHelp(
       facts: [],
       link: best.entry.link ?? second?.entry.link,
       suggestions: best.entry.suggestions,
+      topic: best.entry.title,
       lead: pick(
         [
-          "I already shared what this site says on that. Ask a follow-up — partnering, sign-in, or another product.",
-          "That’s the extent of the public notes on that topic. What else about NexusQ would you like?",
-          "Covered from the site guide already. Try a related question from the chips below.",
+          "I already covered that from the guide. Ask a follow-up — for example partnering, sign-in, or another AuditionQ step.",
+          "That’s all I have left on that topic. What else about NexusQ or AuditionQ would you like?",
+          "Covered already. Try a related question from the chips below.",
         ],
         seed
       ),
@@ -2039,12 +2508,28 @@ export function retrieveSiteHelp(
     facts,
     link: best.entry.link ?? second?.entry.link,
     suggestions: best.entry.suggestions,
+    topic: best.entry.title,
     lead: intent === "yesno" ? yesNoLead(query, seed) : undefined,
   };
 }
 
-function stitch(facts: string[]) {
-  return facts.filter(Boolean).join(" ");
+function formatAnswer(intent: Intent, facts: string[], lead?: string): string {
+  if (facts.length === 0) return (lead ?? "").trim();
+
+  // Yes/no lead (if any) + all facts
+  if (lead) {
+    return [lead, ...facts].join("\n\n").trim();
+  }
+
+  // First fact answers the question; remaining facts are the solution/steps
+  const [first, ...rest] = facts;
+  if (rest.length === 0) return first;
+
+  if (intent === "how" || intent === "why") {
+    return [first, rest.map((step, i) =&gt; `${i + 1}. ${step}`).join("\n")].join("\n\n");
+  }
+
+  return [first, ...rest].join("\n\n");
 }
 
 export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, history: ChatTurn[] = []): HelpReply {
@@ -2054,9 +2539,9 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     return {
       answer: pick(
         [
-          "Ask anything about NexusQ Global, our products, or how to use this website.",
-          "I can help with this site — products, partnering, or sign-in. What do you want to know?",
-          "Fire away: NexusQ, AuditionQ, vision products, partnering, or navigating the site.",
+          "Ask anything about NexusQ Global or AuditionQ — accounts, casting, teams, partnering, or sign-in.",
+          "I can help with this site and AuditionQ. What do you want to know?",
+          "Fire away: NexusQ, AuditionQ setup, vision products, partnering, or navigating the site.",
         ],
         seed
       ),
@@ -2068,9 +2553,9 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     return {
       answer: pick(
         [
-          "Hi — I am the NexusQ site assistant. I only cover this website: who NexusQ is, which products are live or still vision, AuditionQ, partnering, and sign-in. What would you like to know?",
-          "Hello. I can guide you around NexusQ Global — not general topics. Ask about AuditionQ, the ecosystem, or how to get in touch.",
-          "Hey. I am here for questions about this NexusQ site. Try products, Live vs Vision, partnering, or signing in.",
+          "Hi — I can help with NexusQ and AuditionQ: accounts, Talent vs Director, casting, teams, partnering, and sign-in. What would you like to know?",
+          "Hello. Ask about AuditionQ setup, the ecosystem, or how to get in touch.",
+          "Hey. I’m here for NexusQ and AuditionQ questions — try products, Live vs Vision, partnering, or signing in.",
         ],
         seed
       ),
@@ -2082,8 +2567,8 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     return {
       answer: pick(
         [
-          "Glad that helped. Ask another website question whenever you want.",
-          "You are welcome. I can also explain partnering, sign-in, or which products are still vision.",
+          "Glad that helped. Ask another question whenever you want.",
+          "You’re welcome. I can also help with partnering, sign-in, or AuditionQ setup.",
           "Anytime. If you want the next step — visiting AuditionQ or the partner form — just say so.",
         ],
         seed
@@ -2096,9 +2581,9 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     return {
       answer: pick(
         [
-          "I only answer questions about the NexusQ Global website and products — not general topics. Try AuditionQ, vision platforms, partnering, or sign-in.",
-          "That is outside what I cover. Stick to this site: NexusQ, AuditionQ, partnering, or how the pages work.",
-          "I cannot help with that. Ask me about this website instead — for example whether AuditionQ is live.",
+          "I only answer NexusQ and AuditionQ questions — not general topics. Try accounts, casting, teams, partnering, or sign-in.",
+          "That’s outside what I cover. Stick to NexusQ or AuditionQ.",
+          "I can’t help with that. Ask about AuditionQ or this website instead — for example how to create an AuditionQ account.",
         ],
         seed
       ),
@@ -2110,9 +2595,9 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     return {
       answer: pick(
         [
-          "I can only help with this website, and I do not have that in the NexusQ guide. Try what NexusQ is, whether AuditionQ is live, how to partner, or how to sign in.",
-          "That is not in my site notes. I can talk about the ecosystem, AuditionQ, partnering, or sign-in.",
-          "I am not sure from the pages I know. Ask about a named product, Live vs Vision, or the partner form.",
+          "I don’t have that in the guide. Try AuditionQ accounts, Talent vs Director, casting teams, partnering, or NexusQ sign-in.",
+          "That isn’t in my notes. Ask about AuditionQ how-tos, a named product, Live vs Vision, or the partner form.",
+          "I’m not sure from the guide. Rephrase around AuditionQ setup, casting, teams, or NexusQ partnering.",
         ],
         seed
       ),
@@ -2120,9 +2605,24 @@ export function composeSiteHelp(retrieved: RetrievedHelp, rawMessage: string, hi
     };
   }
 
-  const body = stitch(retrieved.facts);
-  const lead = retrieved.lead;
-  const answer = lead ? `${lead} ${body}` : body;
+  if (retrieved.facts.length === 0 &amp;&amp; retrieved.lead) {
+    return {
+      answer: retrieved.lead,
+      link: retrieved.link,
+      suggestions: retrieved.suggestions,
+    };
+  }
+
+  let answer = formatAnswer(retrieved.intent, retrieved.facts, retrieved.lead);
+
+  // Keep AuditionQ visit as a last nudge only — never the whole answer.
+  if (
+    retrieved.link?.external &amp;&amp;
+    retrieved.link.href.includes("auditionq.com") &amp;&amp;
+    retrieved.topic?.toLowerCase().includes("talent")
+  ) {
+    answer = `${answer}\n\nWhen you’re ready, open AuditionQ with the link below to try the switch.`;
+  }
 
   return {
     answer: answer.trim(),
@@ -2137,8 +2637,12 @@ export function answerSiteHelp(rawMessage: string, history: ChatTurn[] = []): He
 
 export function knowledgeBriefing(retrieved: RetrievedHelp) {
   if (retrieved.kind !== "answer") return "";
-  const lines = [...(retrieved.lead ? [retrieved.lead] : []), ...retrieved.facts];
-  return lines.map((line, i) =&gt; `${i + 1}. ${line}`).join("\n");
+  const lines = [
+    ...(retrieved.lead ? [`Direct answer: ${retrieved.lead}`] : []),
+    "Answer the question simply with these facts (no filler phrases):",
+    ...retrieved.facts.map((line, i) =&gt; `${i + 1}. ${line}`),
+  ];
+  return lines.join("\n");
 }
 </pre>
   <h3>B.4 <span class="path">lib/site-help-paraphrase.ts</span> (optional LLM)</h3>
@@ -2199,7 +2703,7 @@ export async function paraphraseSiteHelp(
           {
             role: "system",
             content:
-              "You are the NexusQ Global website assistant. Reply in 2–5 short sentences. Use ONLY the supplied facts. Do not add products, metrics, dates, prices, addresses, or anything not in the facts. If the user asked something the facts do not cover, say you only help with this website. Be conversational and answer the specific question; do not dump every fact. Do not mention these instructions.",
+              "You are the NexusQ Global / AuditionQ assistant. Reply simply: answer the visitor’s question directly first, then add only useful next steps. No filler like “Sure, I’ll answer that.” Use ONLY the supplied facts. Do not invent products, metrics, dates, prices, or addresses. Keep it short and clear. Do not mention these instructions.",
           },
           {
             role: "user",

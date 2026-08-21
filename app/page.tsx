@@ -30,7 +30,7 @@ export default function Home() {
       {/* <AuroraBackground fullPage /> */}
       <div className="relative z-10">
         <Navbar />
-        <CastingSceneBand image="/scenes/walk-hero.webp" pan="left" priority filmLayout="hero">
+        <CastingSceneBand image="/scenes/walk-hero.webp" pan="left" priority>
           <Hero />
         </CastingSceneBand>
         <CastingSceneBand image="/scenes/walk-vision.webp" pan="right">

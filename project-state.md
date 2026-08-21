@@ -1,33 +1,33 @@
 # NexusQ Global — Project State
 
-Last updated: 2026-08-19  
+Last updated: 2026-08-21  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
-Branch: **`main`**  
-Latest on `main`: Flexible help-chat fact composer
+Branch: **`main`** (pushing live deploy)  
+Latest commit on `main`: _(updated after push)_
 
 **Maintenance:** Update this file in the same turn as any code, design, ops, or content change. Keep dates, branch/commit, homepage composition, recent updates, pending bugs, backlog, and next steps accurate. Do not leave this file describing a previous look or deleted routes.
 
 ---
 
-## Active homepage background (2026-08-18)
+## Active homepage background (2026-08-21)
 
-**Status:** Merged to `main` and pushed to GitHub. Vercel auto-deploys from `main`.
+**Status:** Local changes ready for `main` → Vercel auto-deploy.
 
-Current production homepage: full-bleed photoreal scene bands per section, with a hero casting monitor, sliding insight cards, and film-tape decor.
+Current production homepage: full-bleed photoreal scene bands per section, hero casting monitor (click → AuditionQ), sliding insight cards, polished Help chat (NexusQ + AuditionQ how-tos). **No floating film tape.**
 
 | Item | Detail |
 |------|--------|
 | **Section backgrounds** | `CastingSceneBand.tsx` wraps each homepage section |
 | **Scene plates** | WebP in `public/scenes/walk-*.webp` (hero preloaded; others lazy-loaded via native `<img>`) |
 | **Original JPEGs** | Still in `public/scenes/casting-*.jpg` and `walk-*.jpg` for reference / swap source |
-| **Hero film tape** | `filmLayout="hero"` on hero band — dedicated top/bottom lanes so copy + monitor do not cover moving tape |
-| **Casting monitor** | `CastingMonitor.tsx` — looping BTS video; click opens https://www.auditionq.com/ in a new tab |
-| **Hero slides** | `HeroSlideCards.tsx` — full-width auto-rotating cards (3s) about NexusQ, AuditionQ, ecosystem, future, partnership |
+| **Hero film tape** | Removed (2026-08-21) — floating film strips + reels no longer render |
+| **Casting monitor** | `CastingMonitor.tsx` — looping BTS MP4 (`public/videos/casting-bts.mp4`); click → auditionq.com; YouTube embed deferred |
+| **Hero slides** | `HeroSlideCards.tsx` — full-width auto-rotating cards; spacing restored after film-tape removal; stats card in normal flow |
 | **Light mode** | Stronger scene overlays + `.nq-card` / heading contrast so copy stays readable over photos |
 | **Performance** | WebP plates (~55–200 KB vs ~2 MB JPEGs); hero `<link rel="preload">`; lazy + `fetchPriority` on bands |
 | **Disabled (kept in repo)** | `AuroraBackground.tsx` (starfield), `FilmSetBackground.tsx`, `CinematicStudioBackground.tsx` — commented out in `app/page.tsx` |
 | **Deleted** | `ActingSceneBackground.tsx` (cartoon SVG test), `BackstageMonitor.tsx` (replaced by `CastingMonitor`), `EcosystemGuide.tsx` (replaced by site help chat) |
-| **Content** | Section copy, navbar, hero heading/buttons unchanged — layout/background test only |
+| **Content** | Homepage story unchanged; Help chat expanded with AuditionQ FAQ how-tos; widget handoff PDF/HTML regenerated 2026-08-21 |
 
 **Revert path:** restore `<AuroraBackground fullPage />` in `app/page.tsx`; remove or comment hero monitor + slide cards; unwrap sections from `CastingSceneBand`.
 
@@ -61,6 +61,7 @@ The site is a polished corporate/product marketing surface with login, partner i
 | Auth | NextAuth v4 (Credentials + JWT) |
 | Database | PostgreSQL via Prisma 7 (`@prisma/adapter-pg`) |
 | Email | Resend (server-side only) |
+| Help chat | Site-fact composer (`lib/site-help.ts`); optional Groq/OpenAI paraphrase (`lib/site-help-paraphrase.ts`) |
 | Hosting | Vercel (GitHub → auto deploy from `main`) |
 
 ### App routes
@@ -75,14 +76,14 @@ The site is a polished corporate/product marketing surface with login, partner i
 | `/api/auth/[...nextauth]` | NextAuth handler |
 | `/api/auth/signup` | Create user (bcrypt hash → Postgres) |
 | `/api/partner` | Validate form → Resend → inquiry inbox |
-| `/api/help-chat` | Site-only help assistant (NexusQ website knowledge; no general answers) |
+| `/api/help-chat` | Site-only help: retrieve facts → compose question-shaped reply; optional LLM paraphrase |
 
 **Removed (2026-08-08):** `/settings` — Settings page and navbar Settings control deleted on purpose.
 
 ### Homepage composition (top → bottom)
 
 1. Fixed **Navbar** (active section highlight; mobile single bar + ☰ for extras)
-2. **Hero** — copy + casting monitor (BTS video) + full-width sliding insight cards
+2. **Hero** — copy + casting monitor (BTS video, click → auditionq.com) + full-width sliding insight cards
 3. **Vision** (`#about`)
 4. **Ecosystem** (`#platforms`)
 5. **AuditionQ** (`#auditionq`)
@@ -93,7 +94,7 @@ The site is a polished corporate/product marketing surface with login, partner i
 10. **Footer**
 11. Floating **Help chat** (`SiteHelpChat` in root layout — all pages)
 
-Background (**current / `main`**): `CastingSceneBand` per section — WebP walk scenes in `public/scenes/walk-*.webp`, slow pan, film strips + reels; hero uses `filmLayout="hero"`.  
+Background (**current / `main`**): `CastingSceneBand` per section — WebP walk scenes in `public/scenes/walk-*.webp`, slow pan. Film strips/reels removed.  
 Background (**previous / in repo, disabled**): `AuroraBackground` starfield (`fullPage`), `FilmSetBackground` (`/film-background.jpg`), `CinematicStudioBackground` — all commented out in `app/page.tsx`.
 
 ### Key source layout
@@ -112,7 +113,7 @@ public/
   scenes/walk-*.webp          # active homepage scene plates (WebP)
   scenes/casting-*.jpg        # original scene sources (reference)
   scenes/walk-*.jpg           # original walk scene sources (reference)
-  videos/casting-bts.mp4      # hero monitor BTS clip (local primary)
+  videos/casting-bts.mp4      # hero monitor BTS clip (~4.5 MB; keep under 5 MB)
   film-background.jpg         # FilmSetBackground plate (unused)
   cinematic-studio.jpg        # CinematicStudioBackground plate (unused)
 lib/
@@ -121,9 +122,10 @@ prisma/
   schema.prisma
 tutorials/      # homepage, auditionq, dashboard, profile configs + registry
 docs/
-  NexusQ-Widget-Handoff.pdf   # video box + help chat spec, full code, porting guide
-  NexusQ-Widget-Handoff.html  # print source
+  NexusQ-Widget-Handoff.pdf   # video box + help chat spec (fact composer as of 2026-08-19)
+  NexusQ-Widget-Handoff.html  # same content; open in a browser if the PDF viewer fails
   build-handoff-pdf.mjs       # regenerates HTML+PDF from current source files
+.cursor/rules/project-state.mdc   # always-on: keep this file current
 project-state.md
 ```
 
@@ -141,7 +143,22 @@ Reusable spotlight engine under `app/components/onboarding/` (Provider, Spotligh
 
 ### Site help chat
 
-Floating **Help** button (bottom-right, all routes via `app/layout.tsx`) opens `SiteHelpChat`. `POST /api/help-chat` retrieves site facts from `lib/site-help.ts`, then composes a reply shaped to the question (yes/no, how, where, list) instead of always returning the same canned paragraph. Follow-ups skip facts already said. Optional paraphrase via `GROQ_API_KEY` or `OPENAI_API_KEY` (still facts-only). Off-topic / general questions are declined. Navbar **Guide me** remains a separate spotlight tour.
+Floating **Help** button (bottom-right, all routes via `app/layout.tsx`) opens `SiteHelpChat`.
+
+- **API:** `POST /api/help-chat` (`message` + optional `history`)
+- **Engine:** `lib/site-help.ts` stores short **facts**, detects intent, and **composes** a reply that **answers the question first**, then gives the practical solution/steps
+- **Follow-ups:** facts already said in the thread are skipped
+- **Optional paraphrase:** `lib/site-help-paraphrase.ts` if `GROQ_API_KEY` or `OPENAI_API_KEY` is set (still facts-only; answer-then-solution shape; 4s timeout then fall back to compose)
+- **Scope:** NexusQ website **and** AuditionQ product how-tos (accounts, Talent/Director, casting calls, team collaboration, settings/support). Off-topic / general knowledge refused
+- **AuditionQ knowledge:** Expanded from AuditionQ FAQ (create account, switch roles, apply/publish, team roles/invites, password reset, browsers). Clarifies NexusQ site login ≠ AuditionQ product login
+- Navbar **Guide me** remains a separate spotlight tour
+
+### Casting monitor (video box)
+
+- Local primary: `public/videos/casting-bts.mp4` (~4.5 MB today)
+- `preload="metadata"`, muted autoplay loop, poster fallback, CDN fallbacks if local fails
+- Whole bezel is a link to https://www.auditionq.com/ (`target="_blank"`)
+- **Size guidance (no code cap):** keep replacement clips **under 5 MB**, ideally **2–3 MB**, 480p, 10–20s, no audio. 10 MB+ will stall on mobile.
 
 ### Design system
 
@@ -157,20 +174,70 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 
 ## 3. Recent UI / UX updates
 
-### 2026-08-18 — Widget handoff PDF
+### 2026-08-21 — Docs + live deploy package
 
 | Change | Detail |
 |--------|--------|
-| PDF | `docs/NexusQ-Widget-Handoff.pdf` — video + **AI chatbox specs and limitations first**, then porting guide and full source |
-| Regenerator | `docs/build-handoff-pdf.mjs` (Chrome headless) + HTML source |
+| Handoff PDF/HTML | Regenerated from `docs/build-handoff-pdf.mjs` — chat sections 4–6 match AuditionQ FAQ knowledge, answer-first compose, polished UI; YouTube video-box noted as deferred |
+| Live deploy | Push `main` so Vercel picks up film-tape removal, hero slide spacing, help chat expansion + UI |
 
-### 2026-08-19 — Flexible help-chat replies
+### 2026-08-21 — Talent ↔ Director switch how-to in help chat
+
+| Change | Detail |
+|--------|--------|
+| Switch answer | Explains both directions (Talent→Director and Director→Talent), adding a second profile, and what each mode is for |
+| Visit link | Kept last — closing line + “Continue on AuditionQ” CTA after the how-to, not as the main answer |
+
+### 2026-08-21 — Hero slide alignment + chat UI polish
+
+| Change | Detail |
+|--------|--------|
+| Hero slides | Restored spacing after film-tape removal; insight strip no longer crowds the monitor; stats card moved into normal flow (no absolute overlap) |
+| Slide CSS | Full-width strip alignment tightened (viewport height, desktop grid columns) |
+| Help chat UI | Gradient header, online status, softer message area, bounce typing dots, pill chips, glow send/FAB |
+
+### 2026-08-21 — Remove floating film tape
+
+| Change | Detail |
+|--------|--------|
+| Film decor | Removed scrolling film strips + corner reels from `CastingSceneBand` (all homepage sections) |
+| Hero spacing | Removed empty top/bottom lanes that reserved space for the tape |
+| CSS | Deleted `.nq-film-*` / `.nq-scene-hero` film rules from `globals.css` |
+
+### 2026-08-21 — Answer-first help chat replies
+
+| Change | Detail |
+|--------|--------|
+| Reply shape | Replies lead with the real answer (and optional yes/no), then useful steps — no filler like “Sure, I’ll answer that” |
+| Composer | First fact answers the question; remaining facts become steps when useful |
+| UI copy | Starter and subtitle kept simple (NexusQ & AuditionQ help) |
+| Optional LLM | Paraphrase prompt mirrors the same answer-then-solution structure |
+
+### 2026-08-21 — AuditionQ product facts in help chat
+
+| Change | Detail |
+|--------|--------|
+| Knowledge | Added AuditionQ topic entries in `lib/site-help.ts`: overview, account/OTP, Talent↔Director switch, talent apply/photos, director publish/review, team collaboration/roles, settings/support |
+| Source | Ported from AuditionQ FAQ (`faq.ts`); help-topic prompt labels used as suggestion themes only |
+| Starter chips | Help panel welcome + default suggestions point at AuditionQ account / role / partner questions |
+| Retrieval | Stronger keyword scoring (normalized multi-word match); password-reset intent; avoid mixing unrelated topics in one reply |
+| Clarity | NexusQ `/login` answers distinguish website accounts from AuditionQ Get Started |
+
+### 2026-08-19 — Flexible help-chat replies (on `main`, `550f71b`)
 
 | Change | Detail |
 |--------|--------|
 | Fact composer | Help chat pulls relevant site facts and shapes the answer to the question (yes/no, how, where, list) instead of one fixed paragraph per topic |
 | Follow-ups | Already-said facts are skipped; repeating a topic gets a “covered / ask a follow-up” reply |
 | Optional LLM | If `GROQ_API_KEY` or `OPENAI_API_KEY` is set, replies can be paraphrased from those facts only |
+| Handoff PDF | `docs/NexusQ-Widget-Handoff.pdf` regenerated — chat spec sections 4–5 describe the composer (open in Edge/browser; Cursor’s PDF viewer often fails) |
+
+### 2026-08-18 — Widget handoff PDF
+
+| Change | Detail |
+|--------|--------|
+| PDF / HTML | `docs/NexusQ-Widget-Handoff.pdf` + `.html` — video box + AI chatbox specs, limitations, porting guide, full source |
+| Regenerator | `docs/build-handoff-pdf.mjs` (Chrome headless) |
 
 ### 2026-08-18 — Monitor click-through to AuditionQ
 
@@ -185,7 +252,7 @@ Defined in `app/globals.css` as NexusQ tokens (`--nq-bg`, `--nq-surface`, `--nq-
 | Change | Detail |
 |--------|--------|
 | Help chat | Floating **Help** button opens a NexusQ assistant panel (cyan, design tokens, light/dark) |
-| Scope | Website questions only — products, navigation, partner, sign-in, privacy/terms |
+| Scope | NexusQ + AuditionQ product help — products, Talent/Director, casting/teams, partner, sign-in, privacy/terms |
 | Off-topic | General knowledge is refused; replies stay inside published site facts |
 | Placement | Root layout, so Help is available on `/`, `/login`, `/partner`, legal pages |
 | Removed | `EcosystemGuide` Website Tour button and component |
@@ -276,6 +343,8 @@ Documented in `.env.example` (never commit real `.env` / `.env.local`).
 | `RESEND_API_KEY` | Partner email API (server only) |
 | `RESEND_FROM_EMAIL` | From address (sandbox: `NexusQ <onboarding@resend.dev>`) |
 | `PARTNER_INQUIRY_TO` | Inquiry destination |
+| `GROQ_API_KEY` | Optional — help-chat paraphrase (facts-only) |
+| `OPENAI_API_KEY` | Optional — same, if Groq is not set |
 
 ### Production (Vercel) — verified names
 
@@ -322,11 +391,13 @@ Secrets stay in Vercel Environment Variables / local `.env.local` (gitignored).
 | Onboarding auto-start | Can feel intrusive on first visit; Guide me remains for intentional restarts after Settings removal |
 | Starfield on secondary pages | `AuroraBackground` still in repo but disabled on homepage; `/login`, `/partner`, etc. do not use scene bands or starfield |
 | Scene plate swap | Replace matching file in `public/scenes/` (keep filename); prefer WebP for `walk-*.webp` bands in use |
-| Hero monitor video | Local clip at `public/videos/casting-bts.mp4`; CDN fallbacks if local missing |
+| Hero monitor video | Local clip `public/videos/casting-bts.mp4` (~4.5 MB). Keep replacements **under 5 MB** (ideally 2–3 MB, 480p, 10–20s, no audio). YouTube embed deferred. CDN fallbacks if local missing. |
+| Help chat | Fact composer with AuditionQ FAQ coverage (accounts, roles, casting, teams). Answer-first then steps; visit link last. Refuses general/off-topic. Optional Groq/OpenAI. Update `lib/site-help.ts` when public or AuditionQ FAQ copy changes. |
+| Handoff PDF | `docs/NexusQ-Widget-Handoff.pdf` + `.html` regenerated 2026-08-21 — open in Edge/Chrome if Cursor PDF viewer fails |
+| Handoff PDF in Cursor | `docs/NexusQ-Widget-Handoff.pdf` often will not open in the IDE viewer — use Edge/Chrome or the `.html` file |
 | `mongoose` dependency | Still listed alongside Prisma/Postgres — confirm if still needed |
-| Help chat | Composes from site facts (question-shaped, not one fixed paragraph). Optional Groq/OpenAI paraphrase. Update `lib/site-help.ts` when public copy changes. |
 
-**Resolved recently:** missing mobile navbar, side-scrolling overloaded mobile nav, Future card text invisible in light mode, Settings surface, hero-only background, opacity-0 section text on mobile, slow Chrome scene load (WebP + lazy load), light-mode text over photoreal plates, film tape covered by hero copy/monitor, hero monitor overlapping heading.
+**Resolved recently:** missing mobile navbar, side-scrolling overloaded mobile nav, Future card text invisible in light mode, Settings surface, hero-only background, opacity-0 section text on mobile, slow Chrome scene load (WebP + lazy load), light-mode text over photoreal plates, floating film tape removed from scene bands, hero monitor overlapping heading, Website Tour replaced by Help chat, help chat canned paragraphs replaced by fact composer.
 
 No known blocking local bugs for browse / signup / login / partner submit (under current Resend test recipient), once `DATABASE_URL` points at running Postgres.
 
@@ -373,22 +444,23 @@ npm run build
 - [ ] Scene backgrounds visible while scrolling homepage (WebP plates load promptly in Chrome)
 - [ ] Hero casting monitor plays BTS video (or poster fallback)
 - [ ] Clicking the hero video box opens https://www.auditionq.com/
-- [ ] Hero slide cards auto-advance; readable in light and dark mode
-- [ ] Film tape animation visible in hero lanes (not covered by heading)
+- [ ] Hero insight slides aligned under copy/monitor with clear spacing (no overlap with stats card)
+- [ ] Help chat looks polished (header glow, bubbles, chips, FAB)
+- [ ] Film tape animation is gone (no floating strips/reels over scene bands)
 - [ ] Future cards readable in **light** and dark theme
 - [ ] `/partner` submit → email arrives
 - [ ] `/login` signup + sign-in
 - [ ] Footer Privacy / Terms
 - [ ] AuditionQ CTA → https://www.auditionq.com/
 - [ ] `/settings` is gone (expect 404)
-- [ ] Floating **Help** chat answers site questions (AuditionQ, partner, sign-in) and refuses general/off-topic asks
+- [ ] Floating **Help** chat answers NexusQ + AuditionQ questions (accounts, Talent/Director, casting/teams) in a **question-shaped** way and refuses general/off-topic asks
 - [ ] Website Tour button is gone
 
 ---
 
 ## 11. Definition of done (v1 vs remaining)
 
-**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust/innovation sections, partner form + Resend path, privacy/terms, motion + cinematic scene-band homepage (CastingSceneBand, hero monitor, slide cards), responsive nav with active sections, light-mode readability over scene plates, SEO basics, GitHub→Vercel deploy, auth on **Neon PostgreSQL** (Prisma; schema pushed), Settings removed, floating Website Tour replaced by site-only Help chat.
+**Done:** homepage story, ecosystem honesty, AuditionQ proof, future/trust/innovation sections, partner form + Resend path, privacy/terms, motion + cinematic scene-band homepage (CastingSceneBand, hero monitor click-through to auditionq.com, slide cards), responsive nav with active sections, light-mode readability over scene plates, SEO basics, GitHub→Vercel deploy, auth on **Neon PostgreSQL** (Prisma; schema pushed), Settings removed, Website Tour replaced by site Help chat (fact composer + AuditionQ FAQ coverage), widget handoff PDF/HTML in `docs/`.
 
 **Remaining for full “email to admin@auditionq.com” production path:** Resend domain verification + env cutover.  
 **Remaining for production auth:** add Neon `DATABASE_URL` in Vercel env (remove `MONGODB_URI`).  
