@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-21  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
-Branch: **`main`** (pushing live deploy)  
-Latest commit on `main`: _(updated after push)_
+Branch: **`main`** (pushed; Vercel auto-deploys)  
+Latest commit on `main`: `507194a` — Expand help chat with AuditionQ how-tos and ship homepage polish.
 
 **Maintenance:** Update this file in the same turn as any code, design, ops, or content change. Keep dates, branch/commit, homepage composition, recent updates, pending bugs, backlog, and next steps accurate. Do not leave this file describing a previous look or deleted routes.
 
@@ -11,7 +11,7 @@ Latest commit on `main`: _(updated after push)_
 
 ## Active homepage background (2026-08-21)
 
-**Status:** Local changes ready for `main` → Vercel auto-deploy.
+**Status:** Merged to `main` and pushed to GitHub. Vercel auto-deploys from `main`.
 
 Current production homepage: full-bleed photoreal scene bands per section, hero casting monitor (click → AuditionQ), sliding insight cards, polished Help chat (NexusQ + AuditionQ how-tos). **No floating film tape.**
 
