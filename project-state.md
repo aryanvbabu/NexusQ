@@ -3,7 +3,7 @@
 Last updated: 2026-08-22  
 Repo: [aryanvbabu/NexusQ](https://github.com/aryanvbabu/NexusQ)  
 Branch: **`main`** (pushed; Vercel auto-deploys)  
-Latest commit on `main`: `7102e96` — Record deploy commit hash in project-state.
+Latest commit on `main`: `aa14f00` — Ground help chat in the AuditionQ FAQ and email visitors who ask something out of scope.
 
 **Maintenance:** Update this file in the same turn as any code, design, ops, or content change. Keep dates, branch/commit, homepage composition, recent updates, pending bugs, backlog, and next steps accurate. Do not leave this file describing a previous look or deleted routes.
 
