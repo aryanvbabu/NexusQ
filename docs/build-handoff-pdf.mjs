@@ -150,7 +150,7 @@ const html = `<!DOCTYPE html>
     <tr>
       <td>Site help chat</td>
       <td>Fixed bottom-right <strong>Help</strong> button → polished assistant panel</td>
-      <td>Answers NexusQ website questions <em>and</em> AuditionQ product how-tos (accounts, Talent/Director, casting, teams); refuses general knowledge</td>
+      <td>Answers NexusQ website questions <em>and</em> AuditionQ product how-tos from <span class="path">faq.ts</span>; out-of-scope questions offer customer support (email handoff)</td>
     </tr>
   </table>
   <p>
@@ -230,7 +230,8 @@ const html = `<!DOCTYPE html>
   <p>
     The assistant helps visitors with this NexusQ site and with using AuditionQ (the live flagship):
     create account, Talent ↔ Director switch, apply/publish casting calls, team collaboration, password reset, browsers.
-    It must stay inside published facts in <span class="path">lib/site-help.ts</span>. General topics (weather, homework, coding, news) are refused.
+    It must stay inside published facts in <span class="path">lib/site-help.ts</span> and AuditionQ FAQ copy in <span class="path">faq.ts</span>.
+    General topics (weather, homework, coding, news) are out of scope: the assistant asks if the visitor wants customer support, then can email them a handoff note.
   </p>
   <table>
     <tr><th>In scope</th><th>Out of scope</th></tr>
@@ -245,7 +246,8 @@ const html = `<!DOCTYPE html>
     <tr><th>Layer</th><th>File</th><th>Spec</th></tr>
     <tr><td>UI</td><td><span class="path">app/components/SiteHelpChat.tsx</span></td><td>Client widget: Help FAB, gradient header, bubbles, chips, typing dots, input, POST to API</td></tr>
     <tr><td>HTTP API</td><td><span class="path">app/api/help-chat/route.ts</span></td><td><code>POST /api/help-chat</code> only. No GET. No streaming.</td></tr>
-    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span></td><td>Fact retrieval + simple compose: direct answer first, then numbered steps for how/why. Skips already-said facts. Switch-role topics use up to 4 facts.</td></tr>
+    <tr><td>Engine</td><td><span class="path">lib/site-help.ts</span> + <span class="path">lib/auditionq-faq-knowledge.ts</span></td><td>Fact retrieval + compose from NexusQ copy and <span class="path">faq.ts</span>. FAQ how-tos return the published answer. Out-of-scope → support offer + optional Resend email.</td></tr>
+    <tr><td>Support email</td><td><span class="path">lib/help-support-email.ts</span></td><td>Emails the visitor (“want to reach customer support?”) and notifies <code>PARTNER_INQUIRY_TO</code>. 3 sends/hour/IP.</td></tr>
     <tr><td>Optional paraphrase</td><td><span class="path">lib/site-help-paraphrase.ts</span></td><td>If <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> is set, rewrite from those facts only (answer-first, no filler). 4s timeout → fall back to compose.</td></tr>
     <tr><td>Mount</td><td><span class="path">app/layout.tsx</span></td><td>One instance on every route (home, login, partner, privacy, terms)</td></tr>
   </table>
@@ -308,8 +310,8 @@ const html = `<!DOCTYPE html>
     <li>Short greeting / thanks → welcome or acknowledgement, no retrieval.</li>
     <li>Follow-up lines (“what about…”, “tell me more…”, ≤10 words) expand with the previous turn.</li>
     <li>Detect intent: <code>yesno</code>, <code>how</code>, <code>where</code>, <code>why</code>, <code>list</code>, <code>what</code>, or <code>general</code> (password reset forces <code>how</code>).</li>
-    <li>If off-topic and no site/AuditionQ term → refuse.</li>
-    <li>Score topics by normalized keywords/title. Prefer intent-tagged facts. Stick to the best topic (do not mix unrelated second hits).</li>
+    <li>If off-topic / unknown → ask if they want to reach customer support. If they say yes, collect email and send them a support-handoff note (Resend); also notify the support inbox.</li>
+    <li>Score topics by word-boundary keywords + FAQ question title. Prefer FAQ entries for AuditionQ how-tos. Stick to the best topic (do not mix unrelated second hits).</li>
     <li>Yes/no about AuditionQ live → short “yes” lead + supporting fact. Vision products → short “no” lead.</li>
     <li>How/why: first fact = answer; remaining facts = numbered steps. Switch-role questions allow up to 4 facts and end with a soft “open AuditionQ” nudge; the CTA link is last.</li>
     <li>Password-reset questions return only the reset fact (not create-account padding).</li>
@@ -324,12 +326,9 @@ const html = `<!DOCTYPE html>
     <tr><td>what-is-nexusq</td><td>Who NexusQ is / what this website is</td></tr>
     <tr><td>how-to-use-site</td><td>Nav, sections, Guide me, clicking the video box</td></tr>
     <tr><td>auditionq</td><td>Live flagship overview, auditionq.com, monitor click</td></tr>
-    <tr><td>auditionq-account</td><td>Get Started, Talent/Director signup, OTP, forgot password, sign-in role choice</td></tr>
-    <tr><td>auditionq-switch-roles</td><td>Talent ↔ Director switch both ways; add second profile; what each mode is for</td></tr>
-    <tr><td>auditionq-talent</td><td>Complete profile, apply, photo upload, private team reviews</td></tr>
-    <tr><td>auditionq-director</td><td>Publish casting calls, drafts/KYC, review applicants</td></tr>
-    <tr><td>auditionq-team</td><td>Collaborators, roles, invites/links, Shared with me, Shortlist Reviewer limits</td></tr>
-    <tr><td>auditionq-settings-support</td><td>Email/phone, deactivate, browsers, troubleshooting</td></tr>
+    <tr><td>faq-* (from faq.ts)</td><td>Full AuditionQ FAQ: accounts, Talent/Director, apply/publish, teams/roles, settings, browsers</td></tr>
+    <tr><td>auditionq-help-topics</td><td>In-app Help button: problem / suggestion / feedback topics</td></tr>
+    <tr><td>customer-support</td><td>admin@auditionq.com and AuditionQ Report a Problem</td></tr>
     <tr><td>ecosystem / live-vs-vision</td><td>Named platforms and Live / Vision / Exploration</td></tr>
     <tr><td>fursure, rideq, caringminds, onakkodi, future-ai</td><td>Vision/exploration — not launched</td></tr>
     <tr><td>partner / email</td><td>Partner form and admin@auditionq.com</td></tr>
@@ -343,7 +342,7 @@ const html = `<!DOCTYPE html>
     <li>Vision and exploration products must not get store, download, or launch actions.</li>
     <li>No fabricated metrics, testimonials, customer logos, phone number, or street address.</li>
     <li>Legal pages must be described as placeholders until lawyer-reviewed copy exists.</li>
-    <li>When public site copy changes, <span class="path">lib/site-help.ts</span> must be updated in the same change.</li>
+    <li>When public site copy changes, <span class="path">lib/site-help.ts</span> must be updated in the same change. When AuditionQ FAQ changes, update <span class="path">faq.ts</span> (help knowledge is derived from it).</li>
     <li>The assistant must not claim to be a large language model or to browse the web.</li>
   </ul>
 
@@ -509,7 +508,7 @@ const html = `<!DOCTYPE html>
     <li>Replace every knowledge <code>answer</code> with that site’s published copy only.</li>
     <li>Replace <code>SITE_TERMS</code> with that product’s names and routes.</li>
     <li>Point links at that site’s routes.</li>
-    <li>Keep the off-topic refuse behaviour and the honesty rules.</li>
+    <li>Keep the out-of-scope support-offer behaviour and the honesty rules.</li>
     <li>If the host is not Next.js: keep the engine as a plain TS/JS module; expose <code>POST /api/help-chat</code> with the same JSON contract (section 4.4).</li>
     <li>Map Tailwind + <code>nq-*</code> classes to the host design tokens.</li>
     <li>If you cannot use Next <code>Link</code>, use ordinary <code>&lt;a href&gt;</code>.</li>
@@ -550,7 +549,7 @@ const html = `<!DOCTYPE html>
     <tr><td>5</td><td>Reduced-motion users still get a working video-box link</td></tr>
     <tr><td>6</td><td>Chat knowledge rewritten; NexusQ-only facts removed</td></tr>
     <tr><td>7</td><td>Chat spec in this PDF is implemented (website-only, refuse general, 500-char cap)</td></tr>
-    <tr><td>8</td><td>Off-topic questions are refused; no invented metrics or fake live products</td></tr>
+    <tr><td>8</td><td>Out-of-scope questions offer customer support (email handoff); no invented metrics or fake live products</td></tr>
     <tr><td>9</td><td>Help button does not cover primary CTAs on small screens</td></tr>
     <tr><td>10</td><td>No new env secrets unless an LLM phase is approved</td></tr>
   </table>

@@ -17,17 +17,18 @@ type ChatMessage = {
   content: string;
   link?: HelpLink;
   suggestions?: string[];
+  collectEmail?: boolean;
 };
 
 const STARTER: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi — I can help with NexusQ and AuditionQ: accounts, Talent/Director, casting & teams, partnering, and site sign-in. What would you like to know?",
+    "Hi — I can help with NexusQ and AuditionQ: accounts, Talent vs Director, casting & teams, partnering, and this website. What would you like to know?",
   suggestions: [
     "What is AuditionQ?",
-    "How do I create an AuditionQ account?",
-    "How do I switch Talent and Director?",
+    "How do I create an account as an Actor or Casting Director?",
+    "How do I switch from Talent to Director (or Director to Talent)?",
     "How do I partner with you?",
   ],
 };
@@ -112,6 +113,7 @@ export default function SiteHelpChat() {
           content: data.answer,
           link: data.link,
           suggestions: data.suggestions,
+          collectEmail: Boolean(data.collectEmail),
         },
       ]);
     } catch {
@@ -135,6 +137,7 @@ export default function SiteHelpChat() {
   }
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const collectingEmail = Boolean(lastAssistant?.collectEmail);
 
   return (
     <div className="fixed bottom-5 right-4 z-[80] sm:bottom-6 sm:right-6">
@@ -212,11 +215,11 @@ export default function SiteHelpChat() {
                   >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                     {msg.role === "assistant" && msg.link ? (
-                      msg.link.external ? (
+                      msg.link.external || msg.link.href.startsWith("mailto:") ? (
                         <a
                           href={msg.link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          target={msg.link.external ? "_blank" : undefined}
+                          rel={msg.link.external ? "noopener noreferrer" : undefined}
                           className="mt-2.5 inline-flex items-center rounded-lg bg-cyan-500/10 px-2.5 py-1 text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/20"
                         >
                           {msg.link.label} →
@@ -270,8 +273,10 @@ export default function SiteHelpChat() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={500}
-                placeholder="Ask your question…"
-                aria-label="Ask your question"
+                placeholder={collectingEmail ? "Your email address…" : "Ask about NexusQ or AuditionQ…"}
+                aria-label={collectingEmail ? "Your email address" : "Ask your question"}
+                inputMode={collectingEmail ? "email" : "text"}
+                autoComplete={collectingEmail ? "email" : "off"}
                 className="min-w-0 flex-1 rounded-xl border border-nq-border bg-nq-bg px-3.5 py-2.5 text-sm text-nq-text outline-none placeholder:text-nq-muted transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
               />
               <button

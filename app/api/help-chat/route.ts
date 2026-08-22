@@ -5,6 +5,10 @@ import {
   type ChatTurn,
 } from "@/lib/site-help";
 import { paraphraseSiteHelp } from "@/lib/site-help-paraphrase";
+import {
+  allowSupportEmail,
+  sendSupportHandoffEmail,
+} from "@/lib/help-support-email";
 
 const MAX_MESSAGE = 500;
 const MAX_HISTORY = 8;
@@ -25,6 +29,12 @@ function asHistory(value: unknown): ChatTurn[] {
         } satisfies ChatTurn,
       ];
     });
+}
+
+function clientIp(req: Request) {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]!.trim();
+  return req.headers.get("x-real-ip") || "unknown";
 }
 
 export async function POST(req: Request) {
@@ -48,8 +58,34 @@ export async function POST(req: Request) {
 
     const history = asHistory(body.history);
     const retrieved = retrieveSiteHelp(message, history);
-    const composed = composeSiteHelp(retrieved, message, history);
-    const reply = await paraphraseSiteHelp(message, history, retrieved, composed);
+    let reply = composeSiteHelp(retrieved, message, history);
+
+    if (retrieved.kind === "support_send" && retrieved.visitorEmail) {
+      const ip = clientIp(req);
+      if (!allowSupportEmail(ip)) {
+        reply = {
+          answer:
+            "I can only send a few support notes per hour from here. Please email admin@auditionq.com and our team will help.",
+          link: { label: "Email support", href: "mailto:admin@auditionq.com" },
+          suggestions: reply.suggestions,
+        };
+      } else {
+        const sent = await sendSupportHandoffEmail({
+          visitorEmail: retrieved.visitorEmail,
+          question: retrieved.unansweredQuestion || message,
+        });
+        if (!sent.ok) {
+          reply = {
+            answer: sent.error,
+            link: { label: "Email support", href: "mailto:admin@auditionq.com" },
+            suggestions: reply.suggestions,
+          };
+        }
+      }
+    } else if (retrieved.kind === "answer") {
+      reply = await paraphraseSiteHelp(message, history, retrieved, reply);
+    }
+
     return NextResponse.json(reply);
   } catch {
     return NextResponse.json(
